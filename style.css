@@ -33,7 +33,7 @@ header {
 }
 
 #logo {
-    height: 45px;
+    height: 70%;
     width: auto;
     flex-shrink: 0;
     margin-right: 10px;
