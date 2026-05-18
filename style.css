@@ -34,9 +34,11 @@ header {
 }
 
 #logo {
-    height: 50px;
-    width: auto;
+    width: 225px;
+    height: auto;
     flex-shrink: 0;
+    z-index: 2;
+    background-color: var(--primary);
 }
 
 .header-title { 
