@@ -6,8 +6,310 @@
     <title>CSC Bar-le-Duc - App</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=13">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☀️</text></svg>">
+    <style>
+        :root {
+            --primary: #DB860E;
+            --primary-light: #F7A93F;
+            --primary-dark: #B36D0B;
+            --bg: #F8F9FA;
+            --surface: #FFFFFF;
+            --text: #1A1A1A;
+            --text-muted: #7A7A7A;
+            --radius: 20px;
+            --shadow: 0 10px 25px rgba(219, 134, 14, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            user-select: none;
+        }
+
+        /* Header Premium */
+        header {
+            height: 70px;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+            position: fixed;
+            top: 0; width: 100%;
+            z-index: 1000;
+        }
+
+        #logo {
+            height: 70%;
+            width: auto;
+            flex-shrink: 0;
+            margin-right: 10px;
+        }
+
+        .header-title { 
+            font-size: 1rem; 
+            font-weight: 700; 
+            color: white; 
+            line-height: 1.1;
+        }
+        @media (max-width: 400px) {
+            .header-title { font-size: 0.85rem; }
+        }
+        /* Main Scroll Area */
+        main {
+            margin-top: 70px;
+            padding: 20px;
+            padding-bottom: 100px; /* space for bottom nav on mobile */
+        }
+
+        /* Navs */
+        #menu-haut { display: none; }
+        #menu-haut a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 600;
+            opacity: 0.8;
+        }
+        #menu-haut a.active, #menu-haut a:hover { opacity: 1; }
+
+        .screen { display: none; opacity: 0; }
+        .screen.active { display: block; opacity: 1; }
+
+        /* Dashboard Home */
+        .carte-bienvenue {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 30px 25px;
+            border-radius: var(--radius);
+            margin-bottom: 25px;
+            box-shadow: 0 15px 30px rgba(219, 134, 14, 0.3);
+        }
+
+        .carte-bienvenue h2 { font-size: 1.8rem; margin-bottom: 10px; }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .q-card {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: var(--radius);
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid transparent;
+            transition: 0.3s;
+        }
+        .q-card:active { transform: scale(0.95); border-color: var(--primary); }
+        .q-card span { font-weight: 600; font-size: 0.9rem; display: block; margin-top: 10px; }
+
+        /* News & Activity Cards */
+        .carte-actu {
+            background: var(--surface);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+        }
+
+        .image-actu { width: 100%; height: 180px; object-fit: cover; background: #EEE; }
+        .corps-actu { padding: 20px; }
+        .corps-actu small { color: var(--primary); font-weight: 700; text-transform: uppercase; font-size: 0.7rem; }
+        .corps-actu h3 { font-size: 1.1rem; margin: 8px 0; line-height: 1.4; }
+        .corps-actu p { color: var(--text-muted); font-size: 0.9rem; }
+
+        /* Grid Layout Responsive */
+        .grille-layout {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .grille-layout .carte-actu {
+            margin-bottom: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .grille-layout .image-actu {
+            height: 120px;
+        }
+        .grille-layout .corps-actu {
+            padding: 12px;
+            flex-grow: 1;
+        }
+        .grille-layout .corps-actu h3 {
+            font-size: 0.85rem;
+        }
+        .grille-layout .corps-actu p {
+            display: none;
+        }
+
+        /* TABLETTE VERSION (600px et plus) */
+        @media (min-width: 600px) {
+            .grille-layout { grid-template-columns: repeat(3, 1fr); }
+            .grille-layout .image-actu { height: 160px; }
+            .grille-layout .corps-actu h3 { font-size: 1rem; }
+            .grille-layout .corps-actu p { display: block; }
+            
+            .grille-tableau-bord {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                margin-bottom: 20px;
+            }
+            .grille-tableau-bord .carte-bienvenue, .grille-tableau-bord .carte-actu {
+                margin-bottom: 0 !important;
+                height: 100%;
+            }
+            .grille-tableau-bord .corps-actu {
+                padding: 30px 25px 30px 20px !important;
+            }
+            
+            main {
+                max-width: 900px;
+                margin-left: auto;
+                margin-right: auto;
+                padding-bottom: 120px; /* Plus d'espace car la barre de navigation du bas est visible */
+            }
+        }
+
+        /* DESKTOP VERSION (1024px et plus) */
+        @media (min-width: 1024px) {
+            .grille-layout { grid-template-columns: repeat(4, 1fr); }
+            
+            .uniquement-mobile { display: none !important; }
+            #menu-haut.uniquement-pc { display: flex; }
+            
+            main {
+                max-width: 1200px;
+                padding-bottom: 40px; /* Pas de barre en bas, donc moins de marge nécessaire */
+            }
+        }
+
+        /* Article Content Screen */
+        .contenu-article { 
+            line-height: 1.6; 
+            color: #444; 
+            overflow-wrap: break-word; /* Forcer le retour à la ligne */
+            word-wrap: break-word;
+            word-break: break-word;
+        }
+        .contenu-article img, 
+        .contenu-article figure, 
+        .contenu-article iframe,
+        .contenu-article video,
+        .contenu-article table { 
+            max-width: 100% !important; 
+            height: auto !important; 
+            border-radius: 10px; 
+            margin: 15px 0; 
+        }
+        .contenu-article table {
+            display: block;
+            overflow-x: auto;
+        }
+        .bouton-retour { 
+            background: #EEE; border: none; padding: 10px 15px; 
+            border-radius: 10px; margin-bottom: 20px; font-weight: 600;
+            display: flex; align-items: center; gap: 8px;
+            cursor: pointer;
+        }
+
+        /* Category Bar */
+        .barre-categories {
+            display: flex;
+            overflow-x: auto;
+            padding-bottom: 15px;
+            gap: 10px;
+            scrollbar-width: none;
+        }
+        .barre-categories::-webkit-scrollbar { display: none; }
+        .badge-categorie {
+            background: #EEE;
+            padding: 10px 20px;
+            border-radius: 30px;
+            white-space: nowrap;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .badge-categorie.active { background: var(--primary); color: white; }
+        .mini-badge {
+            background: #EEE;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #666;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .mini-badge.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Bottom Nav */
+        #menu-bas {
+            position: fixed;
+            bottom: 0; width: 100%;
+            height: 80px;
+            background: var(--surface);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #EEE;
+            padding-bottom: env(safe-area-inset-bottom);
+            z-index: 1000;
+        }
+
+        .lien-menu {
+            text-align: center;
+            color: #BBB;
+            font-size: 0.7rem;
+            font-weight: 600;
+            transition: 0.3s;
+            flex: 1;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .lien-menu.active { color: var(--primary); }
+        .lien-menu svg { width: 26px; height: 26px; display: block; margin: 0 auto 5px; }
+
+        /* Modal */
+        #modale {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center; justify-content: center;
+            z-index: 2000; backdrop-filter: blur(8px);
+        }
+        .contenu-modale { background: white; width: 85%; padding: 30px; border-radius: var(--radius); }
+        .groupe-saisie { margin-bottom: 20px; }
+        .groupe-saisie label { display: block; font-size: 0.8rem; margin-bottom: 8px; font-weight: 700; }
+        .groupe-saisie input { width: 100%; padding: 15px; border: 1px solid #EEE; border-radius: 12px; background: #F9F9F9; }
+
+        .bouton-large {
+            width: 100%; padding: 18px;
+            background: var(--primary); color: white;
+            border: none; border-radius: 12px;
+            font-weight: 700; font-size: 1rem;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        /* Utils */
+        .chargement { text-align: center; padding: 40px; color: var(--text-muted); font-style: italic; }
+        .hidden { display: none !important; }
+    </style>
 </head>
 <body>
     <header>
@@ -16,14 +318,15 @@
             <span class="header-title">Centres Socioculturels<br>de Bar-le-Duc</span>
         </div>
         <nav id="menu-haut" class="uniquement-pc">
-            <a href="index.html" class="active">Accueil</a>
-            <a href="activities.html">Activités</a>
-            <a href="news.html">Actus</a>
-            <a href="contact.html">Centres</a>
+            <a href="javascript:void(0)" class="lien-menu active" onclick="window.afficherEcran('accueil')">Accueil</a>
+            <a href="javascript:void(0)" class="lien-menu" onclick="window.afficherEcran('activites')">Activités</a>
+            <a href="javascript:void(0)" class="lien-menu" onclick="window.afficherEcran('actus')">Actus</a>
+            <a href="javascript:void(0)" class="lien-menu" onclick="window.afficherEcran('centres')">Centres</a>
         </nav>
     </header>
 
     <main id="contenu-principal">
+        <!-- 1. PAGE ACCUEIL -->
         <div id="page-accueil" class="screen active">
             <div class="grille-tableau-bord">
                 <div class="carte-bienvenue">
@@ -58,26 +361,338 @@
             <h3 style="margin-bottom:15px">À la une</h3>
             <div id="actus-accueil" class="chargement grille-layout">Chargement...</div>
         </div>
+
+        <!-- 2. PAGE ACTIVITES -->
+        <div id="page-activites" class="screen">
+            <h2 style="margin-bottom:15px">Nos Activités</h2>
+            <div class="barre-categories">
+                <div class="badge-categorie active" data-cat="all" onclick="window.loadActivities('all')">Tout</div>
+                <div class="badge-categorie" data-cat="197301" onclick="window.loadActivities('197301')">Nouveautés</div>
+                <div class="badge-categorie" data-cat="749472" onclick="window.loadActivities('749472')">Enfance</div>
+                <div class="badge-categorie" data-cat="124" onclick="window.loadActivities('124')">Familles</div>
+            </div>
+            <div id="liste-activites" class="grille-layout"></div>
+        </div>
+
+        <!-- 3. PAGE ACTUS -->
+        <div id="page-actus" class="screen">
+            <h2 style="margin-bottom:15px">Actualités</h2>
+            <div id="liste-actus-complete" class="grille-layout"></div>
+        </div>
+
+        <!-- 4. PAGE CENTRES -->
+        <div id="page-centres" class="screen">
+            <h2 style="margin-bottom:15px">Nos Centres</h2>
+
+            <div class="carte-actu">
+                <div class="corps-actu">
+                    <h3>Centre Marbot</h3>
+                    <p>4 rue Jean-Bernard - 55000 Bar-le-Duc</p>
+                    <p><strong>03 29 45 07 64</strong></p>
+                    <button class="bouton-large" onclick="window.location.href='tel:0329450764'">Appeler Marbot</button>
+                </div>
+            </div>
+
+            <div class="carte-actu">
+                <div class="corps-actu">
+                    <h3>Centre Libération</h3>
+                    <p>19 avenue de la Libération - 55000 Bar-le-Duc</p>
+                    <p><strong>03 29 79 17 44</strong></p>
+                    <button class="bouton-large" onclick="window.location.href='tel:0329791744'">Appeler Libération</button>
+                </div>
+            </div>
+
+            <div class="carte-actu">
+                <div class="corps-actu">
+                    <h3>Centre Côte Ste-Catherine</h3>
+                    <p>Place de l'Eglise - 55000 Bar-le-Duc</p>
+                    <p><strong>03 29 79 39 88</strong></p>
+                    <button class="bouton-large" onclick="window.location.href='tel:0329793988'">Appeler Ste-Catherine</button>
+                </div>
+            </div>
+
+            <div class="carte-actu" style="background:var(--primary); color:white">
+                <div class="corps-actu">
+                    <h3>Besoin d'aide ?</h3>
+                    <p style="color:white">contact@cscbarleduc.fr</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. PAGE ARTICLE -->
+        <div id="page-article" class="screen">
+            <button class="bouton-retour" onclick="window.afficherEcran(window.ecranPrecedent)">
+                <svg width="20" height="20" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+                </svg>
+                Retour
+            </button>
+            <div id="lecteur-article">
+                <!-- Content injected by app.js -->
+            </div>
+        </div>
     </main>
 
     <nav id="menu-bas" class="uniquement-mobile">
-        <a href="index.html" class="lien-menu active">
+        <a href="javascript:void(0)" class="lien-menu active" onclick="window.afficherEcran('accueil')">
             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg>
             Accueil
         </a>
-        <a href="activities.html" class="lien-menu">
+        <a href="javascript:void(0)" class="lien-menu" onclick="window.afficherEcran('activites')">
             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" /></svg>
             Activités
         </a>
-        <a href="news.html" class="lien-menu">
+        <a href="javascript:void(0)" class="lien-menu" onclick="window.afficherEcran('actus')">
             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" /></svg>
             Actus
         </a>
-        <a href="contact.html" class="lien-menu">
+        <a href="javascript:void(0)" class="lien-menu" onclick="window.afficherEcran('centres')">
             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
             Centres
         </a>
     </nav>
-    <script src="app.js"></script>
+
+    <script>
+        const SITE_URL = "https://cscbarleduc.centres-sociaux.fr/";
+        const API = SITE_URL + "wp-json/wp/v2/posts?_embed";
+        const API_SINGLE = SITE_URL + "wp-json/wp/v2/posts/";
+
+        function decodeHtml(html) {
+            var txt = document.createElement("textarea");
+            txt.innerHTML = html;
+            return normalizeUnicodeText(txt.value);
+        }
+
+        function normalizeUnicodeText(text) {
+            if (!text || typeof text !== 'string') return text;
+            let normalized = text.replace(/[\uD835][\uDC00-\uDFFF]/g, function (char) {
+                var high = char.charCodeAt(0);
+                var low = char.charCodeAt(1);
+                var code = (high - 0xD800) * 0x400 + (low - 0xDC00) + 0x10000;
+                var offset = 0;
+                if (code >= 0x1D5D4 && code <= 0x1D5ED) offset = code - 0x1D5D4 + 65;
+                else if (code >= 0x1D5EE && code <= 0x1D607) offset = code - 0x1D5EE + 97;
+                else if (code >= 0x1D400 && code <= 0x1D419) offset = code - 0x1D400 + 65;
+                else if (code >= 0x1D41A && code <= 0x1D433) offset = code - 0x1D41A + 97;
+                return offset ? String.fromCharCode(offset) : char;
+            });
+            var accentMap = {
+                'e\u0300': 'è', 'e\u0301': 'é', 'e\u0302': 'ê', 'e\u0308': 'ë',
+                'a\u0300': 'à', 'a\u0302': 'â', 'i\u0302': 'î', 'i\u0308': 'ï',
+                'o\u0302': 'ô', 'u\u0300': 'ù', 'u\u0302': 'û', 'c\u0327': 'ç',
+                'E\u0300': 'È', 'E\u0301': 'É', 'A\u0300': 'À'
+            };
+            for (var key in accentMap) {
+                normalized = normalized.split(key).join(accentMap[key]);
+            }
+            try {
+                return (normalized.normalize) ? normalized.normalize('NFC') : normalized;
+            } catch (e) {
+                return normalized;
+            }
+        }
+
+        function createCard(p, provenance) {
+            var img = '';
+            if (p._embedded && p._embedded['wp:featuredmedia'] && p._embedded['wp:featuredmedia'][0]) {
+                img = p._embedded['wp:featuredmedia'][0].source_url;
+            } else if (p.content && p.content.rendered && p.content.rendered.includes('<img')) {
+                var m = p.content.rendered.match(/<img [^>]*src="([^"]+)"/);
+                if (m) img = m[1];
+            }
+
+            var card = document.createElement('div');
+            card.className = 'carte-actu';
+            card.style.cursor = 'pointer';
+            
+            sessionStorage.setItem('post_' + p.id, JSON.stringify(p));
+
+            card.innerHTML = (img ? '<img src="' + img + '" class="image-actu" onerror="this.style.display=\'none\'">' : '') +
+                '<div class="corps-actu">' +
+                '<small>VOIR L\'ARTICLE</small>' +
+                '<h3>' + decodeHtml(p.title.rendered) + '</h3>' +
+                '<p>' + normalizeUnicodeText(p.excerpt.rendered.replace(/<[^>]*>?/gm, '')).substring(0, 80) + '...</p>' +
+                '</div>';
+                
+            card.onclick = function() {
+                window.afficherArticle(p.id, provenance);
+            };
+            return card;
+        }
+
+        function loadHomeNews() {
+            var div = document.getElementById('actus-accueil');
+            if (!div) return;
+            div.innerHTML = '<div class="chargement">Chargement...</div>';
+            fetch(API + "&per_page=4")
+                .then(r => r.json())
+                .then(posts => {
+                    div.innerHTML = '';
+                    if (!posts || posts.length === 0 || posts.code) {
+                        div.innerHTML = '<p style="text-align:center; padding:20px">Aucune actualité pour le moment.</p>';
+                        return;
+                    }
+                    posts.forEach(p => div.appendChild(createCard(p, 'accueil')));
+                })
+                .catch(err => {
+                    console.error('Home News Error:', err);
+                    div.innerHTML = '<p style="color:red; text-align:center; padding:20px">Erreur de connexion au site.</p>';
+                });
+        }
+
+        function loadFullNews() {
+            var div = document.getElementById('liste-actus-complete');
+            if (!div) return;
+            div.innerHTML = '<div class="chargement">Chargement...</div>';
+            fetch(API + "&per_page=12")
+                .then(r => r.json())
+                .then(posts => {
+                    div.innerHTML = '';
+                    if (!posts || posts.length === 0 || posts.code) {
+                        div.innerHTML = '<p style="text-align:center; padding:20px">Pas d\'articles trouvés.</p>';
+                        return;
+                    }
+                    posts.forEach(p => div.appendChild(createCard(p, 'actus')));
+                })
+                .catch(err => {
+                    console.error('Full News Error:', err);
+                    div.innerHTML = '<p style="color:red; text-align:center; padding:20px">Impossible de charger les actualités.</p>';
+                });
+        }
+
+        window.loadActivities = function(cat) {
+            var div = document.getElementById('liste-activites');
+            if (!div) return;
+            div.innerHTML = '<div class="chargement">Recherche...</div>';
+
+            var tags = document.querySelectorAll('.badge-categorie');
+            for (var i = 0; i < tags.length; i++) {
+                tags[i].classList.remove('active');
+                if (tags[i].getAttribute('data-cat') === cat) tags[i].classList.add('active');
+            }
+
+            var url = API + "&per_page=12";
+            if (cat !== 'all') {
+                url += "&categories=" + cat;
+            }
+
+            fetch(url)
+                .then(r => r.json())
+                .then(posts => {
+                    div.innerHTML = '';
+                    if (!posts || posts.length === 0 || posts.code) {
+                        div.innerHTML = '<p style="text-align:center; padding:20px">Aucun contenu trouvé pour cette sélection.</p>';
+                    } else {
+                        posts.forEach(p => div.appendChild(createCard(p, 'activites')));
+                    }
+                })
+                .catch(err => {
+                    console.error('Activities Error:', err);
+                    div.innerHTML = '<p style="color:red; text-align:center; padding:20px">Erreur lors de la recherche.</p>';
+                });
+        }
+
+        window.setDynamicHours = function(centerId) {
+            var div = document.getElementById('horaires-dynamiques');
+            if (!div) return;
+            centerId = centerId || 'marbot';
+
+            var tags = document.querySelectorAll('#selecteur-centre .mini-badge');
+            tags.forEach(t => {
+                t.classList.remove('active');
+                if (t.getAttribute('onclick').includes(centerId)) t.classList.add('active');
+            });
+
+            var schedules = {
+                'marbot': ["Fermé", "13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 17h00", "Fermé"],
+                'liberation': ["Fermé", "13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 17h00", "Fermé"],
+                'cote': ["Fermé", "13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 17h00", "Fermé"]
+            };
+
+            var now = new Date();
+            var todayIdx = now.getDay();
+            var tomorrowIdx = (todayIdx + 1) % 7;
+
+            var html = '<span>Aujourd\'hui :</span> <strong>' + schedules[centerId][todayIdx] + '</strong>' +
+                '<span>Demain :</span> <strong>' + schedules[centerId][tomorrowIdx] + '</strong>';
+
+            div.innerHTML = html;
+        }
+
+        // Navigation SPA
+        window.ecranPrecedent = 'accueil';
+        window.afficherEcran = function(ecranId) {
+            // Masquer tous les écrans
+            const ecrans = document.querySelectorAll('.screen');
+            ecrans.forEach(e => e.classList.remove('active'));
+            
+            // Afficher l'écran cible
+            const cible = document.getElementById('page-' + ecranId);
+            if (cible) {
+                cible.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'instant' });
+            }
+            
+            // Mettre à jour l'état actif des boutons de menu (Haut et Bas)
+            const liens = document.querySelectorAll('.lien-menu');
+            liens.forEach(l => {
+                l.classList.remove('active');
+                if (l.getAttribute('onclick') && l.getAttribute('onclick').includes("'" + ecranId + "'")) {
+                    l.classList.add('active');
+                }
+            });
+            
+            // Actions personnalisées selon la page ouverte
+            if (ecranId === 'accueil') {
+                loadHomeNews();
+            } else if (ecranId === 'activites') {
+                window.loadActivities('all');
+            } else if (ecranId === 'actus') {
+                loadFullNews();
+            }
+        }
+
+        window.afficherArticle = function(id, provenance) {
+            window.ecranPrecedent = provenance || 'accueil';
+            window.afficherEcran('article');
+            
+            var viewer = document.getElementById('lecteur-article');
+            if (!viewer) return;
+            
+            var renderPost = function(post) {
+                var img = post._embedded && post._embedded['wp:featuredmedia'] ? post._embedded['wp:featuredmedia'][0].source_url : '';
+                viewer.innerHTML = (img ? '<img src="' + img + '" style="width:100%; border-radius:20px; margin-bottom:20px">' : '') +
+                    '<h1>' + decodeHtml(post.title.rendered) + '</h1>' +
+                    '<p style="color:var(--primary); font-weight:700; margin:10px 0">' + new Date(post.date).toLocaleDateString() + '</p>' +
+                    '<article class="contenu-article">' + normalizeUnicodeText(post.content.rendered) + '</article>';
+            };
+
+            var cached = sessionStorage.getItem('post_' + id);
+            if (cached) {
+                renderPost(JSON.parse(cached));
+            } else {
+                viewer.innerHTML = '<div class="chargement">Chargement...</div>';
+                fetch(API_SINGLE + id + "?_embed")
+                    .then(r => r.json())
+                    .then(post => renderPost(post))
+                    .catch(err => {
+                        viewer.innerHTML = '<p style="color:red; text-align:center; padding:20px">Erreur de chargement.</p>';
+                    });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Charger la page d'accueil par défaut
+            window.afficherEcran('accueil');
+            window.setDynamicHours('marbot');
+            
+            // Enregistrement du Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(() => console.log('Service Worker enregistré !'))
+                    .catch(err => console.log('Échec SW:', err));
+            }
+        });
+    </script>
 </body>
 </html>
