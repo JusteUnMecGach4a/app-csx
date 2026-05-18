@@ -47,15 +47,15 @@ function createCard(p) {
     }
 
     var card = document.createElement('a');
-    card.className = 'news-card';
+    card.className = 'carte-actu';
     card.href = 'article.html?id=' + p.id;
     card.style.textDecoration = 'none';
     card.style.color = 'inherit';
     
     sessionStorage.setItem('post_' + p.id, JSON.stringify(p));
 
-    card.innerHTML = (img ? '<img src="' + img + '" class="news-img" onerror="this.style.display=\'none\'">' : '') +
-        '<div class="news-body">' +
+    card.innerHTML = (img ? '<img src="' + img + '" class="image-actu" onerror="this.style.display=\'none\'">' : '') +
+        '<div class="corps-actu">' +
         '<small>VOIR L\'ARTICLE</small>' +
         '<h3>' + decodeHtml(p.title.rendered) + '</h3>' +
         '<p>' + normalizeUnicodeText(p.excerpt.rendered.replace(/<[^>]*>?/gm, '')).substring(0, 80) + '...</p>' +
@@ -64,7 +64,7 @@ function createCard(p) {
 }
 
 function loadHomeNews() {
-    var div = document.getElementById('home-news');
+    var div = document.getElementById('actus-accueil');
     if (!div) return;
     fetch(API + "&per_page=4")
         .then(r => r.json())
@@ -83,9 +83,9 @@ function loadHomeNews() {
 }
 
 function loadFullNews() {
-    var div = document.getElementById('news-full-list');
+    var div = document.getElementById('liste-actus-complete');
     if (!div) return;
-    div.innerHTML = '<div class="loader">Chargement...</div>';
+    div.innerHTML = '<div class="chargement">Chargement...</div>';
     fetch(API + "&per_page=12")
         .then(r => r.json())
         .then(posts => {
@@ -103,11 +103,11 @@ function loadFullNews() {
 }
 
 window.loadActivities = function(cat) {
-    var div = document.getElementById('activities-list');
+    var div = document.getElementById('liste-activites');
     if (!div) return;
-    div.innerHTML = '<div class="loader">Recherche...</div>';
+    div.innerHTML = '<div class="chargement">Recherche...</div>';
 
-    var tags = document.querySelectorAll('.cat-tag');
+    var tags = document.querySelectorAll('.badge-categorie');
     for (var i = 0; i < tags.length; i++) {
         tags[i].classList.remove('active');
         if (tags[i].getAttribute('data-cat') === cat) tags[i].classList.add('active');
@@ -135,11 +135,11 @@ window.loadActivities = function(cat) {
 }
 
 window.setDynamicHours = function(centerId) {
-    var div = document.getElementById('dynamic-hours');
+    var div = document.getElementById('horaires-dynamiques');
     if (!div) return;
     centerId = centerId || 'marbot';
 
-    var tags = document.querySelectorAll('#center-selector .mini-tag');
+    var tags = document.querySelectorAll('#selecteur-centre .mini-badge');
     tags.forEach(t => {
         t.classList.remove('active');
         if (t.getAttribute('onclick').includes(centerId)) t.classList.add('active');
@@ -162,7 +162,7 @@ window.setDynamicHours = function(centerId) {
 }
 
 function loadArticle() {
-    var viewer = document.getElementById('article-viewer');
+    var viewer = document.getElementById('lecteur-article');
     if (!viewer) return;
     
     var urlParams = new URLSearchParams(window.location.search);
@@ -178,14 +178,14 @@ function loadArticle() {
         viewer.innerHTML = (img ? '<img src="' + img + '" style="width:100%; border-radius:20px; margin-bottom:20px">' : '') +
             '<h1>' + decodeHtml(post.title.rendered) + '</h1>' +
             '<p style="color:var(--primary); font-weight:700; margin:10px 0">' + new Date(post.date).toLocaleDateString() + '</p>' +
-            '<article class="article-content">' + normalizeUnicodeText(post.content.rendered) + '</article>';
+            '<article class="contenu-article">' + normalizeUnicodeText(post.content.rendered) + '</article>';
     };
 
     var cached = sessionStorage.getItem('post_' + id);
     if (cached) {
         renderPost(JSON.parse(cached));
     } else {
-        viewer.innerHTML = '<div class="loader">Chargement...</div>';
+        viewer.innerHTML = '<div class="chargement">Chargement...</div>';
         fetch(API_SINGLE + id + "?_embed")
             .then(r => r.json())
             .then(post => renderPost(post))
@@ -196,17 +196,17 @@ function loadArticle() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('home-news')) {
+    if (document.getElementById('actus-accueil')) {
         loadHomeNews();
         setDynamicHours('marbot');
     }
-    if (document.getElementById('activities-list')) {
+    if (document.getElementById('liste-activites')) {
         loadActivities('all');
     }
-    if (document.getElementById('news-full-list')) {
+    if (document.getElementById('liste-actus-complete')) {
         loadFullNews();
     }
-    if (document.getElementById('article-viewer')) {
+    if (document.getElementById('lecteur-article')) {
         loadArticle();
     }
 });

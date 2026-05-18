@@ -1,4 +1,4 @@
-const CACHE_NAME = 'csc-bld-v12';
+const CACHE_NAME = 'csc-bld-v13';
 const ASSETS = [
   'index.html',
   'activities.html',
