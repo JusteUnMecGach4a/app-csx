@@ -146,9 +146,9 @@ window.setDynamicHours = function(centerId) {
     });
 
     var schedules = {
-        'marbot': ["Fermé", "13h30-18h", "9h30-12h / 13h30-18h", "9h30-12h / 13h30-18h", "9h30-12h / 13h30-18h", "9h30-12h / 13h30-17h", "Fermé"],
-        'liberation': ["Fermé", "13h30-18h", "9h30-12h / 13h30-18h", "9h30-12h / 13h30-18h", "9h30-12h / 13h30-18h", "9h30-12h / 13h30-17h", "Fermé"],
-        'cote': ["Fermé", "13h30-18h", "9h30-12h / 13h30-18h", "9h30-12h / 13h30-18h", "9h30-12h / 13h30-18h", "9h30-12h / 13h30-17h", "Fermé"]
+        'marbot': ["Fermé", "13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 17h00", "Fermé"],
+        'liberation': ["Fermé", "13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 17h00", "Fermé"],
+        'cote': ["Fermé", "13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 17h00", "Fermé"]
     };
 
     var now = new Date();
