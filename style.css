@@ -96,6 +96,31 @@ main {
 .news-body h3 { font-size: 1.1rem; margin: 8px 0; line-height: 1.4; }
 .news-body p { color: var(--text-muted); font-size: 0.9rem; }
 
+/* Home News Grid (2x2) */
+#home-news {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+#home-news .news-card {
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+#home-news .news-img {
+    height: 120px;
+}
+#home-news .news-body {
+    padding: 12px;
+    flex-grow: 1;
+}
+#home-news .news-body h3 {
+    font-size: 0.85rem;
+}
+#home-news .news-body p {
+    display: none; /* Hide excerpt to save space in 2-col mode */
+}
+
 /* Article Content Screen */
 .article-content { 
     line-height: 1.6; 

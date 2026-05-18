@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="css.css">
 </head>
 
 <body>
@@ -78,7 +77,6 @@
             <h2 style="margin-bottom:15px">Nos Activités</h2>
             <div class="cat-bar">
                 <div class="cat-tag active" data-cat="all" onclick="loadActivities('all')">Tout</div>
-                <div class="cat-tag" data-cat="1" onclick="loadActivities('1')">Général (Test)</div>
                 <div class="cat-tag" data-cat="197301" onclick="loadActivities('197301')">Nouveautés</div>
                 <div class="cat-tag" data-cat="749472" onclick="loadActivities('749472')">Enfance</div>
                 <div class="cat-tag" data-cat="124" onclick="loadActivities('124')">Familles</div>
@@ -107,16 +105,6 @@
 
 
 
-
-        <!-- 6. WEBTV -->
-        <div id="screen-webtv" class="screen">
-            <h2 style="margin-bottom:15px">WebTV</h2>
-            <div class="video-box"
-                style="background:#000; border-radius:20px; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; color:white; font-size:3rem">
-                ▶</div>
-            <p style="color:var(--text-muted); margin-top:15px">Retrouvez toutes nos vidéos sur la vie du centre et nos
-                événements.</p>
-        </div>
 
         <!-- 6. CONTACT -->
         <div id="screen-contact" class="screen">
@@ -180,38 +168,7 @@
             </svg>
             Actus
         </div>
-        <div class="nav-item" onclick="showScreen('webtv')">
-            <svg viewBox="0 0 24 24">
-                <path fill="currentColor"
-                    d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2z" />
-            </svg>
-            WebTV
-        </div>
-
     </nav>
-
-    <!-- Registration Modal -->
-    <div id="modal">
-        <div class="modal-content">
-            <h3 id="modal-title" style="margin-bottom:20px">S'inscrire</h3>
-            <form id="reg-form">
-                <div class="input-group">
-                    <label>Votre Nom</label>
-                    <input type="text" id="reg-name" required placeholder="Ex: Jean Dupont">
-                </div>
-                <div class="input-group">
-                    <label>Email ou Téléphone</label>
-                    <input type="text" id="reg-contact" required placeholder="Pour vous recontacter">
-                </div>
-                <button type="submit" class="btn-full">Confirmer l'inscription</button>
-                <button type="button" class="btn-full" style="background:#EEE; color:#666; margin-top:10px"
-                    onclick="closeModal()">Annuler</button>
-            </form>
-            <div id="success" class="loader hidden" style="color:var(--primary); font-weight:700">
-                ✓ Merci ! Inscription reçue.
-            </div>
-        </div>
-    </div>
 
     <script>
         const SITE_URL = "https://cscbarleduc.centres-sociaux.fr/";
@@ -319,8 +276,7 @@
             viewer.innerHTML = (img ? '<img src="' + img + '" style="width:100%; border-radius:20px; margin-bottom:20px">' : '') +
                 '<h1>' + decodeHtml(post.title.rendered) + '</h1>' +
                 '<p style="color:var(--primary); font-weight:700; margin:10px 0">' + new Date(post.date).toLocaleDateString() + '</p>' +
-                '<article class="article-content">' + normalizeUnicodeText(post.content.rendered) + '</article>' +
-                '<button class="btn-full" onclick="openModal(\'' + decodeHtml(post.title.rendered).replace(/'/g, "\\'") + '\')">S\'inscrire à cette activité</button>';
+                '<article class="article-content">' + normalizeUnicodeText(post.content.rendered) + '</article>';
 
             showScreen('article');
             // Scroll main to top
@@ -355,7 +311,7 @@
 
         function loadHomeNews() {
             var div = document.getElementById('home-news');
-            fetch(API + "&per_page=3")
+            fetch(API + "&per_page=4")
                 .then(r => r.json())
                 .then(posts => {
                     div.innerHTML = '';
@@ -419,33 +375,6 @@
                     console.error('Activities Error:', err);
                     div.innerHTML = '<p style="color:red; text-align:center; padding:20px">Erreur lors de la recherche.</p>';
                 });
-        }
-
-        window.openModal = function (t) {
-            document.getElementById('modal-title').innerText = t;
-            document.getElementById('modal').style.display = 'flex';
-            document.getElementById('reg-form').classList.remove('hidden');
-            document.getElementById('success').classList.add('hidden');
-        }
-
-        window.closeModal = function () { document.getElementById('modal').style.display = 'none'; }
-
-        window.submitPoll = function () {
-            var selected = document.querySelector('input[name="poll"]:checked');
-            if (!selected) {
-                alert("Merci de choisir une option !");
-                return;
-            }
-            document.getElementById('poll-success').classList.remove('hidden');
-            document.querySelector('#screen-sondage .btn-full').classList.add('hidden');
-            document.querySelector('#screen-sondage .input-group').classList.add('hidden');
-        }
-
-        document.getElementById('reg-form').onsubmit = function (e) {
-            e.preventDefault();
-            document.getElementById('reg-form').classList.add('hidden');
-            document.getElementById('success').classList.remove('hidden');
-            setTimeout(closeModal, 2500);
         }
 
         function setDynamicHours(centerId) {
