@@ -390,7 +390,7 @@
                     <h3>Centre Marbot</h3>
                     <p>4 rue Jean-Bernard - 55000 Bar-le-Duc</p>
                     <p><strong>03 29 45 07 64</strong></p>
-                    <button class="bouton-large" onclick="window.location.href='tel:0329450764'">Appeler Marbot</button>
+                    <button class="bouton-large" onclick="window.appeler('0329450764')">Appeler Marbot</button>
                 </div>
             </div>
 
@@ -399,7 +399,7 @@
                     <h3>Centre Libération</h3>
                     <p>19 avenue de la Libération - 55000 Bar-le-Duc</p>
                     <p><strong>03 29 79 17 44</strong></p>
-                    <button class="bouton-large" onclick="window.location.href='tel:0329791744'">Appeler Libération</button>
+                    <button class="bouton-large" onclick="window.appeler('0329791744')">Appeler Libération</button>
                 </div>
             </div>
 
@@ -408,7 +408,7 @@
                     <h3>Centre Côte Ste-Catherine</h3>
                     <p>Place de l'Eglise - 55000 Bar-le-Duc</p>
                     <p><strong>03 29 79 39 88</strong></p>
-                    <button class="bouton-large" onclick="window.location.href='tel:0329793988'">Appeler Ste-Catherine</button>
+                    <button class="bouton-large" onclick="window.appeler('0329793988')">Appeler Ste-Catherine</button>
                 </div>
             </div>
 
@@ -650,6 +650,14 @@
                 window.loadActivities('all');
             } else if (ecranId === 'actus') {
                 loadFullNews();
+            }
+        }
+
+        window.appeler = function(numero) {
+            if (typeof AppInventor !== 'undefined' && AppInventor.setWebViewString) {
+                AppInventor.setWebViewString("tel:" + numero);
+            } else {
+                window.location.href = "tel:" + numero;
             }
         }
 
