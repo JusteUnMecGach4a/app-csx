@@ -23,7 +23,7 @@ body {
 /* Header Premium */
 header {
     height: 70px;
-    background: var(--surface);
+    background: var(--primary);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -31,7 +31,6 @@ header {
     position: fixed;
     top: 0; width: 100%;
     z-index: 1000;
-    border-bottom: 1px solid #EEE;
 }
 
 #logo {
@@ -43,7 +42,7 @@ header {
 .header-title { 
     font-size: 1.1rem; 
     font-weight: 700; 
-    color: var(--primary); 
+    color: white; 
     line-height: 1.2;
 }
 /* Main Scroll Area */
