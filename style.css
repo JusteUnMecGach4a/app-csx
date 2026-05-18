@@ -33,18 +33,20 @@ header {
 }
 
 #logo {
-    width: 225px;
-    height: auto;
+    height: 45px;
+    width: auto;
     flex-shrink: 0;
-    z-index: 2;
-    background-color: var(--primary);
+    margin-right: 10px;
 }
 
 .header-title { 
-    font-size: 1.1rem; 
+    font-size: 1rem; 
     font-weight: 700; 
     color: white; 
-    line-height: 1.2;
+    line-height: 1.1;
+}
+@media (max-width: 400px) {
+    .header-title { font-size: 0.85rem; }
 }
 /* Main Scroll Area */
 main {
