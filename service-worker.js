@@ -1,4 +1,4 @@
-const CACHE_NAME = 'csc-bld-v14';
+const CACHE_NAME = 'csc-bld-v15';
 const ASSETS = [
   'index.html',
   'manifest.json'
