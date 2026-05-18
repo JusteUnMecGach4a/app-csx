@@ -1,11 +1,11 @@
-const CACHE_NAME = 'csc-bld-v5';
+const CACHE_NAME = 'csc-bld-v6';
 const ASSETS = [
   'index.html',
   'activities.html',
   'news.html',
   'contact.html',
   'article.html',
-  'style.css?v=7',
+  'style.css?v=8',
   'app.js',
   'manifest.json'
 ];
