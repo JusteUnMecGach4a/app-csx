@@ -34,8 +34,18 @@ header {
     border-bottom: 1px solid #EEE;
 }
 
-.logo-text { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
+#logo {
+    height: 50px;
+    width: auto;
+    flex-shrink: 0;
+}
 
+.header-title { 
+    font-size: 1.1rem; 
+    font-weight: 700; 
+    color: var(--primary); 
+    line-height: 1.2;
+}
 /* Main Scroll Area */
 main {
     margin-top: 70px;
