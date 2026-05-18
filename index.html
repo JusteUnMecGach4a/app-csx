@@ -6,7 +6,7 @@
     <title>CSC Bar-le-Duc - App</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=11">
+    <link rel="stylesheet" href="style.css?v=12">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☀️</text></svg>">
 </head>
 <body>
@@ -26,6 +26,11 @@
     <main id="main-content">
         <div id="screen-home" class="screen active">
             <div class="top-dashboard-grid">
+                <div class="welcome-card">
+                    <h2>Bienvenue !</h2>
+                    <p>Découvrez les activités et actualités de vos Centres Socioculturels.</p>
+                </div>
+
                 <!-- SECTION HORAIRES AVEC SELECTEUR -->
                 <div class="news-card" style="border-left: 5px solid var(--primary); margin-bottom: 20px;">
                     <div class="news-body" style="padding:15px 20px">
@@ -48,26 +53,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="welcome-card">
-                    <h2>Bienvenue !</h2>
-                    <p>Découvrez les activités et actualités de vos Centres Socioculturels.</p>
-                </div>
-            </div>
-
-            <div class="quick-grid">
-                <a href="activities.html" class="q-card" style="text-decoration:none; color:inherit;">
-                    <svg width="30" height="30" viewBox="0 0 24 24">
-                        <path fill="#DB860E" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
-                    </svg>
-                    <span>Activités</span>
-                </a>
-                <a href="news.html" class="q-card" style="text-decoration:none; color:inherit;">
-                    <svg width="30" height="30" viewBox="0 0 24 24">
-                        <path fill="#4D94FF" d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H7v-2h8v2zm3-4H7v-2h11v2zm0-4H7V7h11v2z" />
-                    </svg>
-                    <span>Actualités</span>
-                </a>
             </div>
 
             <h3 style="margin-bottom:15px">À la une</h3>
