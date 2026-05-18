@@ -6,7 +6,7 @@
     <title>CSC Bar-le-Duc - App</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=8">
+    <link rel="stylesheet" href="style.css?v=9">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☀️</text></svg>">
 </head>
 <body>
@@ -25,30 +25,32 @@
 
     <main id="main-content">
         <div id="screen-home" class="screen active">
-            <div class="welcome-card">
-                <h2>Bienvenue !</h2>
-                <p>Découvrez les activités et actualités de vos Centres Socioculturels.</p>
-            </div>
+            <div class="top-dashboard-grid">
+                <div class="welcome-card">
+                    <h2>Bienvenue !</h2>
+                    <p>Découvrez les activités et actualités de vos Centres Socioculturels.</p>
+                </div>
 
-            <!-- SECTION HORAIRES AVEC SELECTEUR -->
-            <div class="news-card" style="margin-top:-10px; border-left: 5px solid var(--primary);">
-                <div class="news-body" style="padding:15px 20px">
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; flex-wrap:wrap;">
-                        <div style="display:flex; align-items:center; gap:10px">
-                            <svg width="20" height="20" viewBox="0 0 24 24">
-                                <path fill="var(--primary)" d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z" />
-                                <path fill="var(--primary)" d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
-                            </svg>
-                            <strong style="font-size:0.9rem; color:var(--primary)">HORAIRES</strong>
+                <!-- SECTION HORAIRES AVEC SELECTEUR -->
+                <div class="news-card" style="border-left: 5px solid var(--primary); margin-bottom: 20px;">
+                    <div class="news-body" style="padding:15px 20px">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; flex-wrap:wrap;">
+                            <div style="display:flex; align-items:center; gap:10px">
+                                <svg width="20" height="20" viewBox="0 0 24 24">
+                                    <path fill="var(--primary)" d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z" />
+                                    <path fill="var(--primary)" d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
+                                </svg>
+                                <strong style="font-size:0.9rem; color:var(--primary)">HORAIRES</strong>
+                            </div>
+                            <div id="center-selector" style="display:flex; gap:5px; margin-top:5px;">
+                                <div class="mini-tag active" onclick="setDynamicHours('marbot')">Marbot</div>
+                                <div class="mini-tag" onclick="setDynamicHours('liberation')">Libé</div>
+                                <div class="mini-tag" onclick="setDynamicHours('cote')">Côte</div>
+                            </div>
                         </div>
-                        <div id="center-selector" style="display:flex; gap:5px; margin-top:5px;">
-                            <div class="mini-tag active" onclick="setDynamicHours('marbot')">Marbot</div>
-                            <div class="mini-tag" onclick="setDynamicHours('liberation')">Libé</div>
-                            <div class="mini-tag" onclick="setDynamicHours('cote')">Côte</div>
+                        <div id="dynamic-hours" style="font-size:0.85rem; display:grid; grid-template-columns: max-content auto; gap:5px 15px; line-height:1.4">
+                            <!-- Rempli par le script -->
                         </div>
-                    </div>
-                    <div id="dynamic-hours" style="font-size:0.85rem; display:grid; grid-template-columns: 1fr 1fr; gap:5px; line-height:1.4">
-                        <!-- Rempli par le script -->
                     </div>
                 </div>
             </div>
