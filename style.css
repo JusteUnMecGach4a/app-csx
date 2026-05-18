@@ -157,6 +157,9 @@ main {
         margin-bottom: 0 !important;
         height: 100%;
     }
+    .top-dashboard-grid .news-body {
+        padding: 30px 25px 30px 20px !important;
+    }
     
     .mobile-only { display: none !important; }
     #top-nav.desktop-only { display: flex; }
