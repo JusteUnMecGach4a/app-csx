@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CSC Bar-le-Duc - App</title>
+    <!-- Fonts & GSAP -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css.css">
+</head>
+
+<body>
+
+    <header>
+        <img src="logovvv.png" id="logo" alt="Logo CSC">
+        <span class="header-title">Centres Socioculturels de Bar-le-Duc</span>
+    </header>
+
+    <main id="main-content">
+        <!-- 1. DASHBOARD -->
+        <div id="screen-home" class="screen active">
+            <div class="welcome-card">
+                <h2>Bienvenue !</h2>
+                <p>Découvrez les activités et actualités de vos Centres Socioculturels.</p>
+            </div>
+
+            <!-- NOUVELLE SECTION HORAIRES AVEC SELECTEUR -->
+            <div class="news-card" style="margin-top:-10px; border-left: 5px solid var(--primary);">
+                <div class="news-body" style="padding:15px 20px">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px">
+                        <div style="display:flex; align-items:center; gap:10px">
+                            <svg width="20" height="20" viewBox="0 0 24 24">
+                                <path fill="var(--primary)"
+                                    d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z" />
+                                <path fill="var(--primary)" d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
+                            </svg>
+                            <strong style="font-size:0.9rem; color:var(--primary)">HORAIRES</strong>
+                        </div>
+                        <div id="center-selector" style="display:flex; gap:5px">
+                            <div class="mini-tag active" onclick="setDynamicHours('marbot')">Marbot</div>
+                            <div class="mini-tag" onclick="setDynamicHours('liberation')">Libé</div>
+                            <div class="mini-tag" onclick="setDynamicHours('cote')">Côte</div>
+                        </div>
+                    </div>
+                    <div id="dynamic-hours"
+                        style="font-size:0.85rem; display:grid; grid-template-columns: 1fr 1fr; gap:5px; line-height:1.4">
+                        <!-- Rempli par le script -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-grid">
+                <div class="q-card" onclick="showScreen('activities')">
+                    <svg width="30" height="30" viewBox="0 0 24 24">
+                        <path fill="#DB860E"
+                            d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
+                    </svg>
+                    <span>Activités</span>
+                </div>
+                <div class="q-card" onclick="showScreen('news')">
+                    <svg width="30" height="30" viewBox="0 0 24 24">
+                        <path fill="#4D94FF"
+                            d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H7v-2h8v2zm3-4H7v-2h11v2zm0-4H7V7h11v2z" />
+                    </svg>
+                    <span>Actualités</span>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom:15px">À la une</h3>
+            <div id="home-news" class="loader">Chargement...</div>
+        </div>
+
+        <!-- 2. ACTIVITES -->
+        <div id="screen-activities" class="screen">
+            <h2 style="margin-bottom:15px">Nos Activités</h2>
+            <div class="cat-bar">
+                <div class="cat-tag active" data-cat="all" onclick="loadActivities('all')">Tout</div>
+                <div class="cat-tag" data-cat="1" onclick="loadActivities('1')">Général (Test)</div>
+                <div class="cat-tag" data-cat="197301" onclick="loadActivities('197301')">Nouveautés</div>
+                <div class="cat-tag" data-cat="749472" onclick="loadActivities('749472')">Enfance</div>
+                <div class="cat-tag" data-cat="124" onclick="loadActivities('124')">Familles</div>
+            </div>
+            <div id="activities-list"></div>
+        </div>
+
+        <!-- 3. ACTUALITES -->
+        <div id="screen-news" class="screen">
+            <h2 style="margin-bottom:15px">Actualités</h2>
+            <div id="news-full-list"></div>
+        </div>
+
+        <!-- 4. PAGE ARTICLE (FULL CONTENT) -->
+        <div id="screen-article" class="screen">
+            <button class="back-btn" onclick="goBack()">
+                <svg width="20" height="20" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+                </svg>
+                Retour
+            </button>
+            <div id="article-viewer">
+                <!-- Content will be injected here -->
+            </div>
+        </div>
+
+
+
+
+        <!-- 6. WEBTV -->
+        <div id="screen-webtv" class="screen">
+            <h2 style="margin-bottom:15px">WebTV</h2>
+            <div class="video-box"
+                style="background:#000; border-radius:20px; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; color:white; font-size:3rem">
+                ▶</div>
+            <p style="color:var(--text-muted); margin-top:15px">Retrouvez toutes nos vidéos sur la vie du centre et nos
+                événements.</p>
+        </div>
+
+        <!-- 6. CONTACT -->
+        <div id="screen-contact" class="screen">
+            <h2 style="margin-bottom:15px">Nos Centres</h2>
+
+            <div class="news-card">
+                <div class="news-body">
+                    <h3>Centre Marbot</h3>
+                    <p>4 rue Jean-Bernard - 55000 Bar-le-Duc</p>
+                    <p><strong>03 29 45 07 64</strong></p>
+                    <button class="btn-full" onclick="window.location.href='tel:0329450764'">Appeler Marbot</button>
+                </div>
+            </div>
+
+            <div class="news-card">
+                <div class="news-body">
+                    <h3>Centre Libération</h3>
+                    <p>19 avenue de la Libération - 55000 Bar-le-Duc</p>
+                    <p><strong>03 29 79 17 44</strong></p>
+                    <button class="btn-full" onclick="window.location.href='tel:0329791744'">Appeler Libération</button>
+                </div>
+            </div>
+
+            <div class="news-card">
+                <div class="news-body">
+                    <h3>Centre Côte Ste-Catherine</h3>
+                    <p>Place de l'Eglise - 55000 Bar-le-Duc</p>
+                    <p><strong>03 29 79 39 88</strong></p>
+                    <button class="btn-full" onclick="window.location.href='tel:0329793988'">Appeler
+                        Ste-Catherine</button>
+                </div>
+            </div>
+
+            <div class="news-card" style="background:var(--primary); color:white">
+                <div class="news-body">
+                    <h3>Besoin d'aide ?</h3>
+                    <p style="color:white">contact@cscbarleduc.fr</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <nav id="bottom-nav">
+        <div class="nav-item active" onclick="showScreen('home')">
+            <svg viewBox="0 0 24 24">
+                <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+            </svg>
+            Accueil
+        </div>
+        <div class="nav-item" onclick="showScreen('activities')">
+            <svg viewBox="0 0 24 24">
+                <path fill="currentColor"
+                    d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+            </svg>
+            Activités
+        </div>
+        <div class="nav-item" onclick="showScreen('news')">
+            <svg viewBox="0 0 24 24">
+                <path fill="currentColor"
+                    d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
+            </svg>
+            Actus
+        </div>
+        <div class="nav-item" onclick="showScreen('webtv')">
+            <svg viewBox="0 0 24 24">
+                <path fill="currentColor"
+                    d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2z" />
+            </svg>
+            WebTV
+        </div>
+
+    </nav>
+
+    <!-- Registration Modal -->
+    <div id="modal">
+        <div class="modal-content">
+            <h3 id="modal-title" style="margin-bottom:20px">S'inscrire</h3>
+            <form id="reg-form">
+                <div class="input-group">
+                    <label>Votre Nom</label>
+                    <input type="text" id="reg-name" required placeholder="Ex: Jean Dupont">
+                </div>
+                <div class="input-group">
+                    <label>Email ou Téléphone</label>
+                    <input type="text" id="reg-contact" required placeholder="Pour vous recontacter">
+                </div>
+                <button type="submit" class="btn-full">Confirmer l'inscription</button>
+                <button type="button" class="btn-full" style="background:#EEE; color:#666; margin-top:10px"
+                    onclick="closeModal()">Annuler</button>
+            </form>
+            <div id="success" class="loader hidden" style="color:var(--primary); font-weight:700">
+                ✓ Merci ! Inscription reçue.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SITE_URL = "https://cscbarleduc.centres-sociaux.fr/";
+        const API = SITE_URL + "wp-json/wp/v2/posts?_embed";
+
+        var postsCache = {};
+        var currentScreen = 'home';
+        var prevScreen = 'home';
+
+        function showScreen(id) {
+            console.log('Switching to screen:', id);
+            if (id === 'article') {
+                document.getElementById('bottom-nav').style.display = 'none';
+            } else {
+                document.getElementById('bottom-nav').style.display = 'flex';
+                prevScreen = currentScreen;
+                currentScreen = id;
+            }
+
+            var screens = document.querySelectorAll('.screen');
+            var navs = document.querySelectorAll('.nav-item');
+
+            for (var i = 0; i < screens.length; i++) {
+                screens[i].classList.remove('active');
+                gsap.set(screens[i], { display: 'none', opacity: 0 });
+            }
+
+            for (var j = 0; j < navs.length; j++) {
+                navs[j].classList.remove('active');
+                if (navs[j].getAttribute('onclick') && navs[j].getAttribute('onclick').indexOf(id) !== -1) navs[j].classList.add('active');
+            }
+
+            var active = document.getElementById('screen-' + id);
+            if (active) {
+                active.classList.add('active');
+                gsap.fromTo(active, { opacity: 0, x: 20 }, {
+                    opacity: 1, x: 0, display: 'block', duration: 0.4, ease: 'power2.out'
+                });
+            }
+
+            if (id === 'home') loadHomeNews();
+            if (id === 'activities') loadActivities('all');
+            if (id === 'news') loadFullNews();
+        }
+
+        function goBack() {
+            showScreen(prevScreen);
+        }
+
+        function decodeHtml(html) {
+            var txt = document.createElement("textarea");
+            txt.innerHTML = html;
+            return normalizeUnicodeText(txt.value);
+        }
+
+        // Nettoyage des caractères mathématiques spéciaux (Fake Bold) qui cassent les accents
+        function normalizeUnicodeText(text) {
+            if (!text || typeof text !== 'string') return text;
+
+            // 1. On remplace les caractères des blocs "Mathematical Alphanumeric Symbols" par des lettres standards
+            // Utilisation d'une méthode compatible avec les anciens mobiles (Android 4/5)
+            let normalized = text.replace(/[\uD835][\uDC00-\uDFFF]/g, function (char) {
+                var high = char.charCodeAt(0);
+                var low = char.charCodeAt(1);
+                var code = (high - 0xD800) * 0x400 + (low - 0xDC00) + 0x10000;
+
+                var offset = 0;
+                // Sans-serif Bold
+                if (code >= 0x1D5D4 && code <= 0x1D5ED) offset = code - 0x1D5D4 + 65;
+                else if (code >= 0x1D5EE && code <= 0x1D607) offset = code - 0x1D5EE + 97;
+                // Bold classique
+                else if (code >= 0x1D400 && code <= 0x1D419) offset = code - 0x1D400 + 65;
+                else if (code >= 0x1D41A && code <= 0x1D433) offset = code - 0x1D41A + 97;
+
+                return offset ? String.fromCharCode(offset) : char;
+            });
+
+            // 2. Remplacement MANUEL des accents combinés
+            var accentMap = {
+                'e\u0300': 'è', 'e\u0301': 'é', 'e\u0302': 'ê', 'e\u0308': 'ë',
+                'a\u0300': 'à', 'a\u0302': 'â', 'i\u0302': 'î', 'i\u0308': 'ï',
+                'o\u0302': 'ô', 'u\u0300': 'ù', 'u\u0302': 'û', 'c\u0327': 'ç',
+                'E\u0300': 'È', 'E\u0301': 'É', 'A\u0300': 'À'
+            };
+
+            for (var key in accentMap) {
+                normalized = normalized.split(key).join(accentMap[key]);
+            }
+
+            // 3. Fallback final
+            try {
+                return (normalized.normalize) ? normalized.normalize('NFC') : normalized;
+            } catch (e) {
+                return normalized;
+            }
+        }
+
+        function viewArticle(postId) {
+            var post = postsCache[postId];
+            if (!post) return;
+
+            var viewer = document.getElementById('article-viewer');
+            var img = post._embedded && post._embedded['wp:featuredmedia'] ? post._embedded['wp:featuredmedia'][0].source_url : '';
+
+            viewer.innerHTML = (img ? '<img src="' + img + '" style="width:100%; border-radius:20px; margin-bottom:20px">' : '') +
+                '<h1>' + decodeHtml(post.title.rendered) + '</h1>' +
+                '<p style="color:var(--primary); font-weight:700; margin:10px 0">' + new Date(post.date).toLocaleDateString() + '</p>' +
+                '<article class="article-content">' + normalizeUnicodeText(post.content.rendered) + '</article>' +
+                '<button class="btn-full" onclick="openModal(\'' + decodeHtml(post.title.rendered).replace(/'/g, "\\'") + '\')">S\'inscrire à cette activité</button>';
+
+            showScreen('article');
+            // Scroll main to top
+            document.querySelector('main').scrollTop = 0;
+        }
+
+        function createCard(p) {
+            postsCache[p.id] = p;
+            var img = '';
+
+            // 1. Chercher l'image mise en avant
+            if (p._embedded && p._embedded['wp:featuredmedia'] && p._embedded['wp:featuredmedia'][0]) {
+                img = p._embedded['wp:featuredmedia'][0].source_url;
+            }
+            // 2. Si pas d'image mise en avant, chercher la première image dans le contenu
+            else if (p.content && p.content.rendered && p.content.rendered.includes('<img')) {
+                var m = p.content.rendered.match(/<img [^>]*src="([^"]+)"/);
+                if (m) img = m[1];
+            }
+
+            var card = document.createElement('div');
+            card.className = 'news-card';
+            card.onclick = function () { viewArticle(p.id); };
+            card.innerHTML = (img ? '<img src="' + img + '" class="news-img" onerror="this.style.display=\'none\'">' : '') +
+                '<div class="news-body">' +
+                '<small>VOIR L\'ARTICLE</small>' +
+                '<h3>' + decodeHtml(p.title.rendered) + '</h3>' +
+                '<p>' + normalizeUnicodeText(p.excerpt.rendered.replace(/<[^>]*>?/gm, '')).substring(0, 80) + '...</p>' +
+                '</div>';
+            return card;
+        }
+
+        function loadHomeNews() {
+            var div = document.getElementById('home-news');
+            fetch(API + "&per_page=3")
+                .then(r => r.json())
+                .then(posts => {
+                    div.innerHTML = '';
+                    if (!posts || posts.length === 0 || posts.code) {
+                        div.innerHTML = '<p style="text-align:center; padding:20px">Aucune actualité pour le moment.</p>';
+                        return;
+                    }
+                    posts.forEach(p => div.appendChild(createCard(p)));
+                })
+                .catch(err => {
+                    console.error('Home News Error:', err);
+                    div.innerHTML = '<p style="color:red; text-align:center; padding:20px">Erreur de connexion au site.</p>';
+                });
+        }
+
+        function loadFullNews() {
+            var div = document.getElementById('news-full-list');
+            div.innerHTML = '<div class="loader">Chargement...</div>';
+            fetch(API + "&per_page=10")
+                .then(r => r.json())
+                .then(posts => {
+                    div.innerHTML = '';
+                    if (!posts || posts.length === 0 || posts.code) {
+                        div.innerHTML = '<p style="text-align:center; padding:20px">Pas d\'articles trouvés.</p>';
+                        return;
+                    }
+                    posts.forEach(p => div.appendChild(createCard(p)));
+                })
+                .catch(err => {
+                    console.error('Full News Error:', err);
+                    div.innerHTML = '<p style="color:red; text-align:center; padding:20px">Impossible de charger les actualités.</p>';
+                });
+        }
+
+        function loadActivities(cat) {
+            var div = document.getElementById('activities-list');
+            div.innerHTML = '<div class="loader">Recherche...</div>';
+
+            var tags = document.querySelectorAll('.cat-tag');
+            for (var i = 0; i < tags.length; i++) {
+                tags[i].classList.remove('active');
+                if (tags[i].getAttribute('data-cat') === cat) tags[i].classList.add('active');
+            }
+
+            var url = API + "&per_page=10";
+            if (cat !== 'all') {
+                url += "&categories=" + cat;
+            }
+
+            fetch(url)
+                .then(r => r.json())
+                .then(posts => {
+                    div.innerHTML = '';
+                    if (!posts || posts.length === 0 || posts.code) {
+                        div.innerHTML = '<p style="text-align:center; padding:20px">Aucun contenu trouvé pour cette sélection.</p>';
+                    } else {
+                        posts.forEach(p => div.appendChild(createCard(p)));
+                    }
+                })
+                .catch(err => {
+                    console.error('Activities Error:', err);
+                    div.innerHTML = '<p style="color:red; text-align:center; padding:20px">Erreur lors de la recherche.</p>';
+                });
+        }
+
+        window.openModal = function (t) {
+            document.getElementById('modal-title').innerText = t;
+            document.getElementById('modal').style.display = 'flex';
+            document.getElementById('reg-form').classList.remove('hidden');
+            document.getElementById('success').classList.add('hidden');
+        }
+
+        window.closeModal = function () { document.getElementById('modal').style.display = 'none'; }
+
+        window.submitPoll = function () {
+            var selected = document.querySelector('input[name="poll"]:checked');
+            if (!selected) {
+                alert("Merci de choisir une option !");
+                return;
+            }
+            document.getElementById('poll-success').classList.remove('hidden');
+            document.querySelector('#screen-sondage .btn-full').classList.add('hidden');
+            document.querySelector('#screen-sondage .input-group').classList.add('hidden');
+        }
+
+        document.getElementById('reg-form').onsubmit = function (e) {
+            e.preventDefault();
+            document.getElementById('reg-form').classList.add('hidden');
+            document.getElementById('success').classList.remove('hidden');
+            setTimeout(closeModal, 2500);
+        }
+
+        function setDynamicHours(centerId) {
+            centerId = centerId || 'marbot';
+
+            // Mise à jour visuelle du sélecteur
+            var tags = document.querySelectorAll('#center-selector .mini-tag');
+            tags.forEach(t => {
+                t.classList.remove('active');
+                if (t.getAttribute('onclick').includes(centerId)) t.classList.add('active');
+            });
+
+            var schedules = {
+                'marbot': [
+                    "Fermé", "13h30-18h", "9h30-12h / 13h30-18h", "9h30-12h / 13h30-18h",
+                    "9h30-12h / 13h30-18h", "9h30-12h / 13h30-17h", "Fermé"
+                ],
+                'liberation': [
+                    "Fermé", "13h30-18h", "9h30-12h / 13h30-18h", "9h30-12h / 13h30-18h",
+                    "9h30-12h / 13h30-18h", "9h30-12h / 13h30-17h", "Fermé"
+                ],
+                'cote': [
+                    "Fermé", "13h30-18h", "9h30-12h / 13h30-18h", "9h30-12h / 13h30-18h",
+                    "9h30-12h / 13h30-18h", "9h30-12h / 13h30-17h", "Fermé"
+                ]
+            };
+
+            var now = new Date();
+            var todayIdx = now.getDay();
+            var tomorrowIdx = (todayIdx + 1) % 7;
+
+            var html = '<span>Aujourd\'hui :</span> <strong>' + schedules[centerId][todayIdx] + '</strong>' +
+                '<span>Demain :</span> <strong>' + schedules[centerId][tomorrowIdx] + '</strong>';
+
+            document.getElementById('dynamic-hours').innerHTML = html;
+        }
+
+        // Auto-Update every 5 minutes
+        setInterval(function () {
+            console.log('Auto-updating content...');
+            if (currentScreen === 'home') loadHomeNews();
+            if (currentScreen === 'news') loadFullNews();
+            if (currentScreen === 'activities') loadActivities(document.querySelector('.cat-tag.active').getAttribute('data-cat'));
+        }, 300000);
+
+        // Init
+        setDynamicHours();
+        loadHomeNews();
+
+
+    </script>
+</body>
+
+</html>

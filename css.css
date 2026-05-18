@@ -1,0 +1,164 @@
+article {
+    text-align: center;
+}
+header {
+    background-color: #DB860E;
+    display: flex;
+    align-items: center;
+    overflow: hidden; /* Empêche le texte de dépasser du header */
+}
+
+#logo {
+    width: 60px;
+    height: auto;
+    flex-shrink: 0;
+    z-index: 2; /* Garde le logo au-dessus du texte */
+    background-color: #DB860E; /* Cache le texte qui passe derrière */
+}
+
+.header-title {
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-left: 10px;
+    line-height: 1.2;
+    z-index: 2;
+}
+
+/* Le conteneur du défilement */
+.defilement-container {
+    flex-grow: 1;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+/* L'animation */
+.texte-qui-bouge {
+    display: inline-block;
+    padding-left: 100%;
+    animation: defilement-infini 100s linear infinite;
+    
+    /* Style du texte */
+    font-size: 45px;             /* Beaucoup plus gros */
+    font-weight: 800;            /* Très gras (Bold) */
+    font-family: 'Arial Black', sans-serif; /* Une police épaisse et moderne */
+    color: white;                /* Blanc sur fond orange, c'est très beau */
+    text-transform: uppercase;   /* Tout en majuscules pour plus d'impact */
+    letter-spacing: 2px;         /* Un peu d'espace entre les lettres */
+}
+
+@keyframes defilement-infini {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+}
+/* --- Mise à jour du style GÉNÉRAL des liens (pour créer la bulle) --- */
+article a {
+    display: inline-block;
+    color: white;
+    text-decoration: none;
+    
+    /* Pour créer la forme ovale parfaite */
+    padding: 20px 40px;          /* Plus d'espace pour amplifier l'arrondi */
+    border-radius: 50px;         /* Une valeur élevée crée la "bulle" ovale */
+    
+    margin: 15px 0;
+    
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    font-size: 18px;
+    
+    width: 280px;
+    text-align: center;
+    
+    /* Animation fluide au survol */
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+/* --- Appliquer une couleur de FOND OVALE à chaque ID --- */
+
+#rers {
+    background-color: #cdf070; /* vert  */
+    color: #333
+}
+
+#act {
+    background-color: #cdf070; /* vert  */
+    color: #333
+}
+
+#secteur {
+    background-color: #f8f200; /* jaune */
+    color: #333
+}
+
+#jeunesse {
+    background-color: #f8f200; /* jaune */
+    color: #333
+}
+
+#lib {
+    background-color: #f8f200; /* jaune */
+    color: #333
+}
+
+#centre {
+    background-color: #a5c9ed; /* Bleu ciel */
+    color: #333
+}
+
+#famille {
+    background-color: #a5c9ed; /* Bleu ciel */
+    color: #333
+}
+
+#mar {
+    background-color: #a5c9ed; /* Bleu ciel */
+    color: #333
+}
+
+#actu {
+    background-color: #c40994; /* Violet  */
+    color: #333
+}
+
+#num {
+    background-color: #c40994; /* Violet  */
+    color: #333
+}
+
+#cote {
+    background-color: #c40994; /* Violet  */
+    color: #333
+}
+
+#web {
+    background-color: #F1C40F; /* Jaune soleil */
+    color: #333;               /* Texte sombre pour lisibilité */
+}
+
+#contact {
+    background-color: #1ABC9C; /* Turquoise turquoise */
+}
+
+/* --- Effet au survol : la bulle gonfle --- */
+article a:hover {
+    transform: scale(1.1);       /* La bulle grossit légèrement */
+    filter: brightness(90%);     /* La couleur fonce un peu */
+}
+
+body {
+    /* Remplace 'papier.png' par le nom exact de ton fichier image */
+    background-image: url('images/fond.JPG');
+    
+    /* Pour que l'image ne se répète pas et couvre tout l'écran */
+    background-size: cover; 
+    
+    /* Pour que le fond reste fixe quand on scroll */
+    background-attachment: fixed; 
+    
+    /* Pour centrer l'image */
+    background-position: center;
+    
+    /* Optionnel : une marge à 0 pour éviter les bords blancs */
+    margin: 0;
+}
