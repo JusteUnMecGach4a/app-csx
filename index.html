@@ -1184,6 +1184,20 @@
             }
         }
 
+        window.getCenterNameFromCategories = function(categories) {
+            if (!categories || !Array.isArray(categories)) return 'Tous les centres';
+            
+            var names = [];
+            if (categories.includes(749478)) names.push("Côte Ste-Catherine");
+            if (categories.includes(749479)) names.push("Libération");
+            if (categories.includes(749480)) names.push("Marbot");
+            
+            if (names.length === 0) {
+                return "Tous les centres";
+            }
+            return names.join(" & ");
+        }
+
         function createCard(p, provenance) {
             var img = '';
             if (p._embedded && p._embedded['wp:featuredmedia'] && p._embedded['wp:featuredmedia'][0]) {
@@ -1199,10 +1213,11 @@
             
             sessionStorage.setItem('post_' + p.id, JSON.stringify(p));
 
+            var centerName = window.getCenterNameFromCategories(p.categories);
             card.innerHTML = (img ? '<img src="' + img + '" class="image-actu" onerror="this.style.display=\'none\'">' : '') +
                 '<div class="corps-actu">' +
-                '<small>VOIR L\'ARTICLE</small>' +
-                '<h3>' + decodeHtml(p.title.rendered) + '</h3>' +
+                '<small style="color:var(--primary); font-weight:700;">📍 ' + centerName.toUpperCase() + '</small>' +
+                '<h3 style="margin-top: 5px;">' + decodeHtml(p.title.rendered) + '</h3>' +
                 '<p>' + normalizeUnicodeText(p.excerpt.rendered.replace(/<[^>]*>?/gm, '')).substring(0, 80) + '...</p>' +
                 '</div>';
                 
@@ -1216,41 +1231,42 @@
         window.activiteAppartientAuCentre = function(item, centerId) {
             if (!centerId || centerId === 'all') return true;
             
-            var lieu = '';
-            var desc = '';
-            var titre = '';
-            
             if (item.lieu !== undefined) {
                 // Événement de la base locale (BASE_ACTIVITES)
-                lieu = (item.lieu || '').toLowerCase();
-                desc = (item.description || '').toLowerCase();
-                titre = (item.titre || '').toLowerCase();
+                var lieu = (item.lieu || '').toLowerCase();
+                var desc = (item.description || '').toLowerCase();
+                var titre = (item.titre || '').toLowerCase();
+                
+                // Les activités transversales ou générales ouvertes à tous sont visibles partout
+                if (lieu.includes("tous les") || lieu.includes("trois centres") || lieu.includes("marbot, libération ou côte") ||
+                    desc.includes("tous les centres") || desc.includes("les 3 centres") || desc.includes("les trois centres")) {
+                    return true;
+                }
+                
+                var mentionneMarbot = lieu.includes('marbot') || desc.includes('marbot') || titre.includes('marbot');
+                var mentionneLibe = lieu.includes('libération') || lieu.includes('libe') || desc.includes('libération') || desc.includes('libe') || titre.includes('libération') || titre.includes('libe');
+                var mentionneCote = lieu.includes('côte') || lieu.includes('cote') || lieu.includes('catherine') || desc.includes('côte') || desc.includes('cote') || desc.includes('catherine') || titre.includes('côte') || titre.includes('cote') || titre.includes('catherine');
+                
+                // Si l'activité ne mentionne aucun centre en particulier, elle est transversale (visible partout)
+                if (!mentionneMarbot && !mentionneLibe && !mentionneCote) {
+                    return true;
+                }
+                
+                if (centerId === 'marbot') return mentionneMarbot;
+                if (centerId === 'liberation') return mentionneLibe;
+                if (centerId === 'cote') return mentionneCote;
             } else {
-                // Article WordPress
-                titre = (item.title && item.title.rendered ? item.title.rendered : '').toLowerCase();
-                desc = (item.content && item.content.rendered ? item.content.rendered : '').toLowerCase();
-                var excerpt = (item.excerpt && item.excerpt.rendered ? item.excerpt.rendered : '').toLowerCase();
-                desc += ' ' + excerpt;
+                // Article WordPress : vérification par catégories de centres
+                var cats = item.categories || [];
+                
+                // Si l'article ne possède aucune catégorie de centre, il est transversal (visible partout)
+                var hasCenterCat = cats.includes(749478) || cats.includes(749479) || cats.includes(749480);
+                if (!hasCenterCat) return true;
+                
+                if (centerId === 'cote') return cats.includes(749478);
+                if (centerId === 'liberation') return cats.includes(749479);
+                if (centerId === 'marbot') return cats.includes(749480);
             }
-            
-            // Les activités transversales ou générales ouvertes à tous sont visibles partout
-            if (lieu.includes("tous les") || lieu.includes("trois centres") || lieu.includes("marbot, libération ou côte") ||
-                desc.includes("tous les centres") || desc.includes("les 3 centres") || desc.includes("les trois centres")) {
-                return true;
-            }
-            
-            var mentionneMarbot = lieu.includes('marbot') || desc.includes('marbot') || titre.includes('marbot');
-            var mentionneLibe = lieu.includes('libération') || lieu.includes('libe') || desc.includes('libération') || desc.includes('libe') || titre.includes('libération') || titre.includes('libe');
-            var mentionneCote = lieu.includes('côte') || lieu.includes('cote') || lieu.includes('catherine') || desc.includes('côte') || desc.includes('cote') || desc.includes('catherine') || titre.includes('côte') || titre.includes('cote') || titre.includes('catherine');
-            
-            // Si l'activité ne mentionne aucun centre en particulier, elle est transversale (visible partout)
-            if (!mentionneMarbot && !mentionneLibe && !mentionneCote) {
-                return true;
-            }
-            
-            if (centerId === 'marbot') return mentionneMarbot;
-            if (centerId === 'liberation') return mentionneLibe;
-            if (centerId === 'cote') return mentionneCote;
             
             return true;
         }
@@ -1462,9 +1478,10 @@
             
             var renderPost = function(post) {
                 var img = post._embedded && post._embedded['wp:featuredmedia'] ? post._embedded['wp:featuredmedia'][0].source_url : '';
+                var locationStr = window.getCenterNameFromCategories(post.categories);
                 viewer.innerHTML = (img ? '<img src="' + img + '" style="width:100%; border-radius:20px; margin-bottom:20px">' : '') +
                     '<h1>' + decodeHtml(post.title.rendered) + '</h1>' +
-                    '<p style="color:var(--primary); font-weight:700; margin:10px 0">' + new Date(post.date).toLocaleDateString() + '</p>' +
+                    '<p style="color:var(--primary); font-weight:700; margin:10px 0">📍 ' + locationStr + ' | 📅 ' + new Date(post.date).toLocaleDateString() + '</p>' +
                     '<article class="contenu-article elementor-kit-9570">' + normalizeUnicodeText(post.content.rendered) + '</article>';
 
                 // Rendre toutes les images de l'article cliquables (Lightbox)
