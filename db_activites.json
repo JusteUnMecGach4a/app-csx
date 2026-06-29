@@ -1,0 +1,42 @@
+[
+    {
+        "id": 1,
+        "titre": "PUCES DES COUTURIÈRES",
+        "description": "Venez chiner tissus, mercerie, laines, accessoires... dans une ambiance conviviale ! Organisé par le CAG du Centre Marbot. Petite restauration sur place.",
+        "lieu": "Centre Socioculturel Marbot",
+        "date": "2026-06-06T09:00:00",
+        "heureAffichage": "09h00 - 18h00"
+    },
+    {
+        "id": 2,
+        "titre": "LES MERCRE'DIY",
+        "description": "Emeline vous propose de venir découvrir et dompter la machine à coudre en réalisant de jolies créations ! Pour les 12-17 ans.",
+        "lieu": "Centre Socioculturel Marbot",
+        "date": "2026-05-27T14:00:00",
+        "heureAffichage": "14h00 - 16h00"
+    },
+    {
+        "id": 3,
+        "titre": "SÉJOUR INTERNATIONAL FRANCO-ALLEMAND",
+        "description": "Échanges interculturels, animations et activités de découverte pour les jeunes. Un mini séjour inoubliable !",
+        "lieu": "Départ CSC Bar-le-Duc",
+        "date": "2026-07-03T08:00:00",
+        "heureAffichage": "Du 3 au 9 juillet"
+    },
+    {
+        "id": 4,
+        "titre": "ATELIERS INFORMATIQUES",
+        "description": "Besoin d'aide avec l'informatique ou les démarches en ligne ? Prenez rendez-vous dans l'un de nos trois centres pour un atelier ou un rdv individuel.",
+        "lieu": "Marbot, Libération ou Côte",
+        "date": "2026-06-01T09:30:00",
+        "heureAffichage": "Sur rendez-vous"
+    },
+    {
+        "id": 5,
+        "titre": "CULTURE URBAINE - Hip-Hop",
+        "description": "Venez vous initier ou vous perfectionner à la danse Hip-Hop !",
+        "lieu": "Centre Socioculturel Côte Ste-Catherine",
+        "date": "2026-06-12T17:00:00",
+        "heureAffichage": "17h00 - 19h00"
+    }
+]
