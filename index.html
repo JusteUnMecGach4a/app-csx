@@ -691,7 +691,6 @@
         <nav id="menu-haut" class="uniquement-pc">
             <a href="javascript:void(0)" class="lien-menu active" onclick="window.afficherEcran('accueil')">Accueil</a>
             <a href="javascript:void(0)" class="lien-menu" onclick="window.afficherEcran('activites')">Activités</a>
-            <a href="javascript:void(0)" class="lien-menu" onclick="window.afficherEcran('agenda')">Agenda</a>
             <a href="javascript:void(0)" class="lien-menu" onclick="window.afficherEcran('informatique')">Numérique</a>
             <a href="javascript:void(0)" class="lien-menu" onclick="window.afficherEcran('actus')">Actus</a>
             <a href="javascript:void(0)" class="lien-menu" onclick="window.afficherEcran('centres')">Centres</a>
@@ -762,19 +761,7 @@
             <div id="liste-activites" class="grille-layout"></div>
         </div>
 
-        <!-- 2.5 PAGE AGENDA (Base de données) -->
-        <div id="page-agenda" class="screen">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
-                <h2 style="margin:0">Agenda des Évènements</h2>
-                <div id="selecteur-centre-agenda" style="display:flex; gap:5px;">
-                    <div class="mini-badge active" onclick="setCenterAndReload('all')">Tous</div>
-                    <div class="mini-badge" onclick="setCenterAndReload('cote')">Côte</div>
-                    <div class="mini-badge" onclick="setCenterAndReload('liberation')">Libé</div>
-                    <div class="mini-badge" onclick="setCenterAndReload('marbot')">Marbot</div>
-                </div>
-            </div>
-            <div id="liste-agenda" class="grille-layout"></div>
-        </div>
+
 
         <!-- 3. PAGE ACTUS -->
         <div id="page-actus" class="screen">
@@ -947,10 +934,6 @@
             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" /></svg>
             Activités
         </a>
-        <a href="javascript:void(0)" class="lien-menu" onclick="window.afficherEcran('agenda')">
-            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"/></svg>
-            Agenda
-        </a>
         <a href="javascript:void(0)" class="lien-menu" onclick="window.afficherEcran('informatique')">
             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7l-2 3v1h8v-1l-2-3h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H3V4h18v12z"/></svg>
             Numérique
@@ -1059,9 +1042,7 @@
                             console.error("Impossible de sauvegarder localement:", e);
                         }
                         
-                        if (document.getElementById('page-agenda').classList.contains('active')) {
-                            window.loadAgenda();
-                        }
+
                     }
                 })
                 .catch(err => {
@@ -1375,31 +1356,6 @@
 
             div.innerHTML = html;
 
-            // Mettre à jour l'agenda en temps réel s'il est affiché
-            if (document.getElementById('page-agenda').classList.contains('active')) {
-                window.loadAgenda();
-            }
-        }
-
-        window.setCenterAndReload = function(centerId) {
-            window.currentCenter = centerId;
-            safeStorage.setItem('selectedCenter', centerId);
-            
-            var agendaBadges = document.querySelectorAll('#selecteur-centre-agenda .mini-badge');
-            agendaBadges.forEach(t => {
-                t.classList.remove('active');
-                if (t.getAttribute('onclick').includes("'" + centerId + "'")) t.classList.add('active');
-            });
-
-            if (centerId !== 'all') {
-                window.setDynamicHours(centerId);
-            } else {
-                // Si 'Tous', on décoche les autres sélecteurs
-                var tags = document.querySelectorAll('#selecteur-centre .mini-badge');
-                tags.forEach(t => t.classList.remove('active'));
-            }
-            
-            window.loadAgenda();
         }
 
         // Navigation SPA
@@ -1430,85 +1386,12 @@
                 loadHomeNews();
             } else if (ecranId === 'activites') {
                 window.loadActivities('all');
-            } else if (ecranId === 'agenda') {
-                var centerId = window.currentCenter || safeStorage.getItem('selectedCenter') || 'all';
-                var agendaBadges = document.querySelectorAll('#selecteur-centre-agenda .mini-badge');
-                agendaBadges.forEach(t => {
-                    t.classList.remove('active');
-                    if (t.getAttribute('onclick').includes("'" + centerId + "'")) t.classList.add('active');
-                });
-                window.loadAgenda();
             } else if (ecranId === 'actus') {
                 loadFullNews();
             }
         }
 
-        window.loadAgenda = function() {
-            var div = document.getElementById('liste-agenda');
-            if (!div) return;
-            div.innerHTML = '';
 
-            if (typeof BASE_ACTIVITES === 'undefined') {
-                div.innerHTML = '<p style="text-align:center; padding:20px; color:red">Base de données non trouvée.</p>';
-                return;
-            }
-
-            var centerId = window.currentCenter || safeStorage.getItem('selectedCenter') || 'all';
-            var filteredActivities = BASE_ACTIVITES.filter(evt => {
-                return window.activiteAppartientAuCentre(evt, centerId);
-            });
-
-            if (filteredActivities.length === 0) {
-                div.innerHTML = '<p style="text-align:center; padding:20px; color:var(--text-muted)">Aucun événement prévu pour ce centre actuellement.</p>';
-                return;
-            }
-
-            filteredActivities.forEach(evt => {
-                var dateObj = new Date(evt.date);
-                var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                var dateStr = dateObj.toLocaleDateString('fr-FR', options);
-                
-                var card = document.createElement('div');
-                card.className = 'carte-actu';
-                
-                var boutonAlerteId = 'btn-alerte-' + evt.id;
-                
-                card.innerHTML = `
-                    <div class="corps-actu" style="height: 100%; display: flex; flex-direction: column;">
-                        <small style="color: var(--primary)">${dateStr.toUpperCase()}</small>
-                        <h3>${evt.titre}</h3>
-                        <p style="font-weight:600; color:#555; margin-bottom:5px">📍 ${evt.lieu} <br> 🕒 ${evt.heureAffichage}</p>
-                        <p style="margin-bottom:15px; flex-grow:1;">${evt.description}</p>
-                        <button id="${boutonAlerteId}" class="bouton-large" style="padding: 12px; margin-top: auto; display: flex; justify-content: center; align-items: center; gap: 8px;" onclick="programmerNotification('${evt.titre.replace(/'/g, "\\'")}', '${evt.date}')">
-                            <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"/></svg>
-                            Ajouter au calendrier
-                        </button>
-                    </div>
-                `;
-                div.appendChild(card);
-            });
-        }
-
-        window.programmerNotification = function(titre, dateStr) {
-            var dateEvt = new Date(dateStr);
-            
-            var timestampDebut = dateEvt.getTime();
-            
-            // On estime que l'événement dure 2 heures pour le calendrier
-            var dateFin = new Date(dateEvt.getTime());
-            dateFin.setHours(dateFin.getHours() + 2);
-            var timestampFin = dateFin.getTime();
-
-            // Format choisi: calendrier|Titre_Evenement|Timestamp_debut|Timestamp_fin
-            var commandeAppInventor = "calendrier|" + titre + "|" + timestampDebut + "|" + timestampFin;
-
-            if (typeof AppInventor !== 'undefined' && AppInventor.setWebViewString) {
-                AppInventor.setWebViewString(commandeAppInventor);
-            } else {
-                console.log("Commande AppInventor simulée :", commandeAppInventor);
-                alert("Ouverture du calendrier simulée pour : " + titre);
-            }
-        }
 
         window.appeler = function(numero) {
             if (typeof AppInventor !== 'undefined' && AppInventor.setWebViewString) {
