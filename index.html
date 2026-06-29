@@ -912,7 +912,7 @@
                 <input type="text" id="activite-inscription" placeholder="Ex: Atelier cuisine" readonly />
             </div>
             <p style="font-size: 0.82rem; color: #856404; background: #FFF3CD; border-left: 4px solid #FFEBAA; padding: 10px; border-radius: 6px; margin: 15px 0 15px; line-height: 1.4; text-align: left;">
-                ⚠️ <strong>Important</strong> : Votre préinscription ne sera effective qu'après votre passage dans l'un de nos 3 centres pour règlement.
+                ⚠️ <strong>Important</strong> : Votre inscription ne sera effective qu'après votre passage dans l'un de nos 3 centres pour règlement.
             </p>
             <button class="bouton-large" id="btn-envoyer-inscription" onclick="envoyerInscriptionTelegram()">Envoyer la préinscription</button>
             <button class="bouton-large" style="background:#EEE; color:#333; margin-top:10px" onclick="fermerModale()">Annuler</button>
@@ -1845,7 +1845,7 @@
                     
                     // Léger délai pour laisser la modale se fermer proprement
                     setTimeout(() => {
-                        alert("✅ Préinscription envoyée avec succès !\n\n⚠️ Votre préinscription ne sera effective qu'après votre passage dans l'un de nos 3 centres pour règlement.");
+                        alert("✅ Préinscription envoyée avec succès !\n\n⚠️ Votre inscription ne sera effective qu'après votre passage dans l'un de nos 3 centres pour règlement.");
                     }, 300);
                 } else {
                     alert("❌ Erreur lors de l'envoi : " + data.description);
