@@ -943,17 +943,27 @@
             Actus
         </a>
         <a href="javascript:void(0)" class="lien-menu" onclick="window.afficherEcran('centres')">
-            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            Centres
-        </a>
-    </nav>
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2    <script>
+        // =========================================================================
+        // CONFIGURATION & INITIALISATION
+        // =========================================================================
 
-    <script>
+        // URL racine du site WordPress officiel des CSC de Bar-le-Duc
         const SITE_URL = "https://cscbarleduc.centres-sociaux.fr/";
+        
+        // Point d'entrée de l'API REST WordPress pour récupérer les articles (avec les médias embarqués)
         const API = SITE_URL + "wp-json/wp/v2/posts?_embed";
+        
+        // Point d'entrée pour récupérer un article unique spécifique via son ID
         const API_SINGLE = SITE_URL + "wp-json/wp/v2/posts/";
 
-        // Wrapper sécurisé pour localStorage (évite les crashs dans les WebViews sans DOM Storage)
+        /**
+         * Wrapper sécurisé pour localStorage.
+         * Dans certains environnements (comme certaines WebViews d'Android / App Inventor), 
+         * le localStorage standard (DOM Storage) peut être désactivé ou restreint, ce qui lève des exceptions.
+         * Ce wrapper intercepte ces erreurs et bascule sur un stockage en mémoire vive (objet temporaire)
+         * pour éviter que l'application ne plante complètement au démarrage.
+         */
         const safeStorage = {
             getItem: function(key) {
                 try {
@@ -971,7 +981,15 @@
             }
         };
 
-        // Base de données locale par défaut (mise à jour dynamiquement au lancement)
+        // =========================================================================
+        // SYNCHRONISATION DES ACTIVITÉS EN MODE HORS-LIGNE
+        // =========================================================================
+
+        /**
+         * Base de données locale par défaut (données de secours / offline).
+         * Ce tableau sert de fallback si l'utilisateur ouvre l'application sans connexion Internet
+         * et qu'aucun cache n'a encore pu être sauvegardé.
+         */
         window.BASE_ACTIVITES = [
             {
                 id: 1,
@@ -1015,7 +1033,7 @@
             }
         ];
 
-        // Charger depuis safeStorage si disponible
+        // Tentative de récupération de la base d'activités précédemment mise en cache
         try {
             var localStoredActivites = safeStorage.getItem('base_activites');
             if (localStoredActivites) {
@@ -1029,6 +1047,11 @@
             console.error("Erreur de parsing de base_activites local:", e);
         }
 
+        /**
+         * Met à jour la base locale d'activités depuis le serveur.
+         * Récupère le fichier db_activites.json mis à jour dynamiquement sur le serveur web
+         * pour rafraîchir les activités hors-ligne locales dans le localStorage.
+         */
         function mettreAJourActivites() {
             fetch(SITE_URL + "db_activites.json")
                 .then(res => res.json())
@@ -1041,8 +1064,6 @@
                         } catch(e) {
                             console.error("Impossible de sauvegarder localement:", e);
                         }
-                        
-
                     }
                 })
                 .catch(err => {
@@ -1050,14 +1071,21 @@
                 });
         }
 
-        // Horaires par défaut (schedulesDYN)
+        // =========================================================================
+        // GESTION DYNAMIQUE DES HORAIRES (SÉLECTION PAR CENTRE)
+        // =========================================================================
+
+        /**
+         * Horaires d'ouverture par défaut pour chaque centre (Lundi à Dimanche).
+         * Indice 0 = Dimanche, 1 = Lundi, 2 = Mardi, ..., 6 = Samedi.
+         */
         window.schedulesDYN = {
             'marbot': ["Fermé", "13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 17h00", "Fermé"],
             'liberation': ["Fermé", "13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 17h00", "Fermé"],
             'cote': ["Fermé", "13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 18h00", "09h30 – 12h00 et 13h30 – 17h00", "Fermé"]
         };
 
-        // Charger depuis safeStorage si disponible
+        // Chargement des horaires depuis le cache local (localStorage) s'ils existent
         try {
             var localSchedules = safeStorage.getItem('schedules_dyn');
             if (localSchedules) {
@@ -1071,6 +1099,12 @@
             console.error("Erreur de parsing des horaires locaux:", e);
         }
 
+        /**
+         * Scrapeur automatique des horaires d'ouverture depuis la page Elementor officielle.
+         * Récupère la page d'ouverture des CSC (ID 2362), puis extrait et analyse les trois
+         * tableaux de jours/heures insérés par Elementor pour mettre à jour automatiquement 
+         * les plannings affichés en haut de l'écran d'accueil sans intervention manuelle.
+         */
         function mettreAJourHoraires() {
             fetch(SITE_URL + "wp-json/wp/v2/pages/2362")
                 .then(res => res.json())
@@ -1088,7 +1122,7 @@
                             var table = tables[idx];
                             var rows = table.querySelectorAll('tr');
                             
-                            // Dimanche est 0, Samedi est 6 (tous deux Fermé par défaut)
+                            // Par défaut tout est marqué "Fermé"
                             var days = ["Fermé", "Fermé", "Fermé", "Fermé", "Fermé", "Fermé", "Fermé"];
                             
                             rows.forEach(row => {
@@ -1102,6 +1136,7 @@
                                     var isMorningClosed = morning.toLowerCase().includes('ferm');
                                     var isAfternoonClosed = afternoon.toLowerCase().includes('ferm');
                                     
+                                    // Formate la chaîne finale d'horaires d'ouverture pour la journée
                                     if (isMorningClosed && isAfternoonClosed) {
                                         scheduleStr = "Fermé";
                                     } else if (isMorningClosed) {
@@ -1112,9 +1147,10 @@
                                         scheduleStr = morning + " et " + afternoon;
                                     }
                                     
-                                    // Nettoyer les tirets et espaces
+                                    // Uniformisation typographique
                                     scheduleStr = scheduleStr.replace(/-/g, ' – ');
                                     
+                                    // Mappe le jour en français vers l'index JavaScript de Date.getDay()
                                     var dayIndex = -1;
                                     if (dayName.includes('lun')) dayIndex = 1;
                                     else if (dayName.includes('mar')) dayIndex = 2;
@@ -1149,12 +1185,26 @@
                 });
         }
 
+        // =========================================================================
+        // FONCTIONS UTILITAIRES DE TRAITEMENT DE TEXTE
+        // =========================================================================
+
+        /**
+         * Décode les entités HTML (ex: &#8217; en apostrophe) pour éviter d'afficher
+         * des caractères encodés bruts dans le titre et la description des articles.
+         */
         function decodeHtml(html) {
             var txt = document.createElement("textarea");
             txt.innerHTML = html;
             return normalizeUnicodeText(txt.value);
         }
 
+        /**
+         * Normalise le texte unicode.
+         * Corrige les polices fantaisies ou de style mathématique parfois appliquées 
+         * automatiquement par Elementor, et restaure les caractères et accents français 
+         * standard (é, è, à, ç, etc.) sous leur forme canonique NFC unifiée.
+         */
         function normalizeUnicodeText(text) {
             if (!text || typeof text !== 'string') return text;
             let normalized = text.replace(/[\uD835][\uDC00-\uDFFF]/g, function (char) {
@@ -1184,6 +1234,14 @@
             }
         }
 
+        // =========================================================================
+        // GESTION DU MAILING ET DES CENTRES
+        // =========================================================================
+
+        /**
+         * Mappe la liste des catégories WordPress d'un article vers le nom textuel
+         * du centre correspondant (Côte Ste-Catherine, Libération, Marbot).
+         */
         window.getCenterNameFromCategories = function(categories) {
             if (!categories || !Array.isArray(categories)) return 'Tous les centres';
             
@@ -1198,8 +1256,14 @@
             return names.join(" & ");
         }
 
+        /**
+         * Crée dynamiquement une carte d'activité/actualité HTML (DOM) prête à être affichée.
+         * @param {Object} p - L'objet JSON de l'article WordPress retourné par l'API REST.
+         * @param {string} provenance - Le nom de l'écran SPA actuel (ex: 'accueil', 'activites', 'actus').
+         */
         function createCard(p, provenance) {
             var img = '';
+            // Extraction de l'image de couverture (image mise en avant) ou de la première image dans le texte
             if (p._embedded && p._embedded['wp:featuredmedia'] && p._embedded['wp:featuredmedia'][0]) {
                 img = p._embedded['wp:featuredmedia'][0].source_url;
             } else if (p.content && p.content.rendered && p.content.rendered.includes('<img')) {
@@ -1211,6 +1275,7 @@
             card.className = 'carte-actu';
             card.style.cursor = 'pointer';
             
+            // Mise en cache temporaire de l'article en cours de consultation
             sessionStorage.setItem('post_' + p.id, JSON.stringify(p));
 
             var centerName = window.getCenterNameFromCategories(p.categories);
@@ -1227,7 +1292,11 @@
             return card;
         }
 
-        // Fonction utilitaire pour détecter si un événement ou un article appartient à un centre
+        /**
+         * Filtre les activités et articles WordPress selon le centre choisi dans l'application.
+         * Les articles transversaux (mentionnant tous les centres ou sans catégorie spécifique) 
+         * restent visibles partout.
+         */
         window.activiteAppartientAuCentre = function(item, centerId) {
             if (!centerId || centerId === 'all') return true;
             
@@ -1237,7 +1306,6 @@
                 var desc = (item.description || '').toLowerCase();
                 var titre = (item.titre || '').toLowerCase();
                 
-                // Les activités transversales ou générales ouvertes à tous sont visibles partout
                 if (lieu.includes("tous les") || lieu.includes("trois centres") || lieu.includes("marbot, libération ou côte") ||
                     desc.includes("tous les centres") || desc.includes("les 3 centres") || desc.includes("les trois centres")) {
                     return true;
@@ -1247,7 +1315,6 @@
                 var mentionneLibe = lieu.includes('libération') || lieu.includes('libe') || desc.includes('libération') || desc.includes('libe') || titre.includes('libération') || titre.includes('libe');
                 var mentionneCote = lieu.includes('côte') || lieu.includes('cote') || lieu.includes('catherine') || desc.includes('côte') || desc.includes('cote') || desc.includes('catherine') || titre.includes('côte') || titre.includes('cote') || titre.includes('catherine');
                 
-                // Si l'activité ne mentionne aucun centre en particulier, elle est transversale (visible partout)
                 if (!mentionneMarbot && !mentionneLibe && !mentionneCote) {
                     return true;
                 }
@@ -1271,6 +1338,13 @@
             return true;
         }
 
+        // =========================================================================
+        // CHARGEMENT ET RÉCUPÉRATION DES ARTICLES (CMS WORDPRESS)
+        // =========================================================================
+
+        /**
+         * Charge les 4 dernières actualités en vedette pour la page d'accueil.
+         */
         function loadHomeNews() {
             var div = document.getElementById('actus-accueil');
             if (!div) return;
@@ -1291,6 +1365,9 @@
                 });
         }
 
+        /**
+         * Charge les 12 dernières actualités complètes pour la page Actus dédiée.
+         */
         function loadFullNews() {
             var div = document.getElementById('liste-actus-complete');
             if (!div) return;
@@ -1311,11 +1388,16 @@
                 });
         }
 
+        /**
+         * Charge les activités filtrées selon la catégorie spécifiée.
+         * @param {string} cat - ID de la catégorie WordPress (ex: 124 pour Familles) ou 'all' pour toutes.
+         */
         window.loadActivities = function(cat) {
             var div = document.getElementById('liste-activites');
             if (!div) return;
             div.innerHTML = '<div class="chargement">Recherche...</div>';
 
+            // Gère la classe 'active' sur les badges filtres d'activités
             var tags = document.querySelectorAll('.badge-categorie');
             for (var i = 0; i < tags.length; i++) {
                 tags[i].classList.remove('active');
@@ -1343,6 +1425,15 @@
                 });
         }
 
+        // =========================================================================
+        // GESTION DU TEXTE ET DES HORAIRES DE LA BARRE D'ACCUEIL
+        // =========================================================================
+
+        /**
+         * Met à jour dynamiquement la section horaire de l'accueil pour afficher
+         * les heures d'ouverture d'aujourd'hui et de demain pour le centre choisi.
+         * @param {string} centerId - Identifiant du centre ('cote', 'marbot', 'liberation').
+         */
         window.setDynamicHours = function(centerId) {
             var div = document.getElementById('horaires-dynamiques');
             if (!div) return;
@@ -1351,6 +1442,7 @@
             safeStorage.setItem('selectedCenter', centerId);
             window.currentCenter = centerId;
 
+            // Ajoute la surbrillance sur le sélecteur du centre choisi
             var tags = document.querySelectorAll('#selecteur-centre .mini-badge');
             tags.forEach(t => {
                 t.classList.remove('active');
@@ -1364,18 +1456,25 @@
             };
 
             var now = new Date();
-            var todayIdx = now.getDay();
+            var todayIdx = now.getDay(); // 0=Dimanche, 1=Lundi, etc.
             var tomorrowIdx = (todayIdx + 1) % 7;
 
             var html = '<span>Aujourd\'hui :</span> <strong>' + schedules[centerId][todayIdx] + '</strong>' +
                 '<span>Demain :</span> <strong>' + schedules[centerId][tomorrowIdx] + '</strong>';
 
             div.innerHTML = html;
-
         }
 
-        // Navigation SPA
+        // =========================================================================
+        // NAVIGATION SPA & ROUTAGE
+        // =========================================================================
+
         window.ecranPrecedent = 'accueil';
+
+        /**
+         * Affiche l'écran demandé (SPA) et met à jour l'historique et la barre de navigation.
+         * @param {string} ecranId - Identifiant HTML de l'écran cible (sans le préfixe 'page-').
+         */
         window.afficherEcran = function(ecranId) {
             // Masquer tous les écrans
             const ecrans = document.querySelectorAll('.screen');
@@ -1388,7 +1487,7 @@
                 window.scrollTo({ top: 0, behavior: 'instant' });
             }
             
-            // Mettre à jour l'état actif des boutons de menu (Haut et Bas)
+            // Met à jour l'état actif des boutons de menu (Haut et Bas)
             const liens = document.querySelectorAll('.lien-menu');
             liens.forEach(l => {
                 l.classList.remove('active');
@@ -1397,7 +1496,7 @@
                 }
             });
             
-            // Actions personnalisées selon la page ouverte
+            // Chargements automatiques spécifiques à la page affichée
             if (ecranId === 'accueil') {
                 loadHomeNews();
             } else if (ecranId === 'activites') {
@@ -1407,8 +1506,15 @@
             }
         }
 
+        // =========================================================================
+        // INTÉGRATION & COMMUNICATION AVEC APP INVENTOR
+        // =========================================================================
 
-
+        /**
+         * Permet de passer un appel téléphonique.
+         * Si exécuté dans la WebView de l'application mobile (App Inventor), envoie la commande
+         * 'tel:xxxx' via le WebViewString pour ouvrir le composeur natif. Sinon, fallback standard HTML5.
+         */
         window.appeler = function(numero) {
             if (typeof AppInventor !== 'undefined' && AppInventor.setWebViewString) {
                 AppInventor.setWebViewString("tel:" + numero);
@@ -1417,6 +1523,11 @@
             }
         }
 
+        /**
+         * Ouvre un lien externe.
+         * Si exécuté dans l'application mobile, envoie la commande 'ouvrir|URL' via WebViewString
+         * pour qu'App Inventor ouvre le lien dans le navigateur du système Android (hors WebView).
+         */
         window.ouvrirLien = function(url) {
             if (typeof AppInventor !== 'undefined' && AppInventor.setWebViewString) {
                 AppInventor.setWebViewString("ouvrir|" + url);
@@ -1425,6 +1536,15 @@
             }
         }
 
+        // =========================================================================
+        // INJECTION DES STYLES WORDPRESS ET ELEMENTOR
+        // =========================================================================
+
+        /**
+         * Charge dynamiquement les feuilles de styles (CSS) WordPress & Elementor d'un article.
+         * Nécessaire pour conserver la mise en page originale, les couleurs et les styles
+         * d'un article rédigé avec Elementor au sein de notre lecteur personnalisé.
+         */
         function chargerStylesheetsArticle(postId) {
             // 1. Gutenberg Block Library CSS
             if (!document.getElementById('wp-block-library-css')) {
@@ -1444,7 +1564,7 @@
                 document.head.appendChild(link);
             }
 
-            // 3. Elementor Global Kit CSS (styles globaux du kit du site)
+            // 3. Elementor Global Kit CSS (styles globaux du kit de styles du site)
             if (!document.getElementById('elementor-kit-css')) {
                 var link = document.createElement('link');
                 link.id = 'elementor-kit-css';
@@ -1466,11 +1586,19 @@
             document.head.appendChild(linkPost);
         }
 
+        // =========================================================================
+        // AFFICHAGE DÉTAILLÉ DE L'ARTICLE (LECTEUR)
+        // =========================================================================
+
+        /**
+         * Ouvre l'écran de lecture d'un article et charge son contenu via l'API REST WordPress.
+         * @param {number} id - Identifiant de l'article WordPress à charger.
+         * @param {string} provenance - Écran d'origine pour le bouton Retour.
+         */
         window.afficherArticle = function(id, provenance) {
             window.ecranPrecedent = provenance || 'accueil';
             window.afficherEcran('article');
             
-            // Charger les stylesheets pour cet article
             chargerStylesheetsArticle(id);
             
             var viewer = document.getElementById('lecteur-article');
@@ -1484,7 +1612,7 @@
                     '<p style="color:var(--primary); font-weight:700; margin:10px 0">📍 ' + locationStr + ' | 📅 ' + new Date(post.date).toLocaleDateString() + '</p>' +
                     '<article class="contenu-article elementor-kit-9570">' + normalizeUnicodeText(post.content.rendered) + '</article>';
 
-                // Rendre toutes les images de l'article cliquables (Lightbox)
+                // Rendre toutes les images incluses dans le texte cliquables pour zoom (Lightbox)
                 var articleImgs = viewer.querySelectorAll('img');
                 articleImgs.forEach(function(image) {
                     image.style.cursor = 'zoom-in';
@@ -1496,28 +1624,25 @@
                 // Filtrer l'affichage du bouton Se préinscrire (visible uniquement pour les activités)
                 var btnInscrire = document.getElementById('btn-s-inscrire');
                 if (btnInscrire) {
-                    // 749472 = Enfance, 124 = Familles, 749475 = Jeunesse, 197301 = Nouveautés, 749476 = Adultes
+                    // Liste des IDs de catégories représentant des activités
+                    // (749472 = Enfance, 124 = Familles, 749475 = Jeunesse, 197301 = Nouveautés, 749476 = Adultes)
                     var categoriesActivites = [749472, 124, 749475, 197301, 749476];
                     var isActivite = post.categories && post.categories.some(function(cat) {
                         return categoriesActivites.includes(Number(cat));
                     });
 
-                    // Si c'est dans les catégories d'activités, on exclut les articles purement informatifs
+                    // Exclusions basées sur les mots-clés du titre pour masquer le bouton d'inscription (ex: recrutements)
                     if (isActivite) {
                         var title = (post.title && post.title.rendered || "").toLowerCase();
-                        
-                        // Mots-clés de titres indiquant une information simple (non-inscriptible)
                         var keywordsExclusion = [
                             "recrute", "recrutement", "emploi", 
                             "horaires d'ouverture", "horaire d'ouverture", "horaires",
                             "puces des couturieres", "puces des couturières", 
                             "nos activites", "nos activités"
                         ];
-                        
                         var containsExclusion = keywordsExclusion.some(function(word) {
                             return title.includes(word);
                         });
-                        
                         if (containsExclusion) {
                             isActivite = false;
                         }
@@ -1529,14 +1654,14 @@
                         btnInscrire.style.display = 'none';
                     }
 
-                    // Boutons spécifiques pour l'atelier informatique (ID 14253)
+                    // Gestion spécifique pour l'espace numérique / ateliers informatiques ANCT (ID 14253)
                     var containerBoutonsSpeciaux = document.getElementById('boutons-speciaux-informatique');
                     if (containerBoutonsSpeciaux) {
                         containerBoutonsSpeciaux.remove();
                     }
 
                     if (Number(post.id) === 14253) {
-                        btnInscrire.style.display = 'none'; // Pas de formulaire Telegram pour les ateliers ANCT
+                        btnInscrire.style.display = 'none'; // Pas de formulaire Telegram standard pour cet atelier
 
                         var extraDiv = document.createElement('div');
                         extraDiv.id = 'boutons-speciaux-informatique';
@@ -1560,6 +1685,7 @@
                 }
             };
 
+            // Utilise les données en cache de la session si disponibles pour accélérer le chargement
             var cached = sessionStorage.getItem('post_' + id);
             if (cached) {
                 renderPost(JSON.parse(cached));
@@ -1574,6 +1700,13 @@
             }
         }
 
+        // =========================================================================
+        // FORMULAIRE ET MODALE DE PRÉINSCRIPTION (BOT TELEGRAM)
+        // =========================================================================
+
+        /**
+         * Ouvre la fenêtre modale de préinscription pour l'activité lue.
+         */
         window.ouvrirModaleInscription = function() {
             var titreArticle = '';
             var articleH1 = document.querySelector('#lecteur-article h1');
@@ -1586,22 +1719,35 @@
             document.getElementById('modale').style.display = 'flex';
         }
 
+        /**
+         * Ferme la fenêtre modale de préinscription.
+         */
         window.fermerModale = function() {
             document.getElementById('modale').style.display = 'none';
         }
 
+        // =========================================================================
+        // VISIONNEUSE D'IMAGE (LIGHTBOX AVEC ZOOM PINCH/CLIC EXTENSIBLE)
+        // =========================================================================
+
+        /**
+         * Ouvre l'image en plein écran (Lightbox) pour une lecture confortable.
+         */
         window.ouvrirLightbox = function(src) {
             document.getElementById('lightbox-img').src = src;
             document.getElementById('lightbox').style.display = 'flex';
         }
 
+        /**
+         * Active/Désactive le zoom tactile ou clic sur l'image affichée dans la Lightbox.
+         */
         window.toggleZoomLightbox = function(e) {
-            e.stopPropagation(); // Évite de fermer la lightbox en cliquant sur l'image
+            e.stopPropagation(); // Évite de refermer la lightbox lors du clic sur l'image
             var img = document.getElementById('lightbox-img');
             var box = document.getElementById('lightbox');
             
             if (img.classList.contains('zoomed')) {
-                // Dézoomer
+                // Dézoomer l'image aux dimensions par défaut de l'écran
                 img.classList.remove('zoomed');
                 img.style.maxWidth = '95%';
                 img.style.maxHeight = '90%';
@@ -1613,11 +1759,11 @@
                 box.style.display = 'flex';
                 box.style.overflow = 'hidden';
             } else {
-                // Zoomer
+                // Zoomer à 2x la taille de l'écran (avec barres de défilement)
                 img.classList.add('zoomed');
                 img.style.maxWidth = '250%';
                 img.style.maxHeight = 'none';
-                img.style.width = '200vw'; // zoom à 2x la largeur de l'écran
+                img.style.width = '200vw';
                 img.style.height = 'auto';
                 img.style.margin = '20px auto';
                 img.style.cursor = 'zoom-out';
@@ -1627,6 +1773,9 @@
             }
         }
 
+        /**
+         * Ferme la visionneuse d'image et réinitialise les zooms.
+         */
         window.fermerLightbox = function() {
             var img = document.getElementById('lightbox-img');
             var box = document.getElementById('lightbox');
@@ -1644,6 +1793,14 @@
             img.src = '';
         }
 
+        // =========================================================================
+        // ENVOI DES NOTIFICATIONS DE PRÉINSCRIPTION
+        // =========================================================================
+
+        /**
+         * Envoie les informations de préinscription (Nom, Tél, Mail, Activité)
+         * directement dans le groupe Telegram des CSC de Bar-le-Duc via l'API Bot Telegram.
+         */
         window.envoyerInscriptionTelegram = function() {
             var nom = document.getElementById('nom-inscription').value;
             var tel = document.getElementById('tel-inscription').value;
@@ -1655,7 +1812,7 @@
                 return;
             }
 
-            // A REMPLACER PAR TES INFOS TELEGRAM
+            // Clé du Bot et ID de la discussion (Groupe "Préinscription aux activités")
             var botToken = "8766017376:AAFd-QsemtJosguWAT11RBgo5AwE0Erdsxg"; 
             var chatId = "-1003976696132";
 
@@ -1672,6 +1829,7 @@
             btn.innerText = "Envoi en cours...";
             btn.disabled = true;
 
+            // Envoi de la requête POST asynchrone à l'API Telegram
             fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1685,7 +1843,7 @@
                     document.getElementById('tel-inscription').value = '';
                     document.getElementById('email-inscription').value = '';
                     
-                    // Léger délai pour laisser la modale se fermer avant la popup
+                    // Léger délai pour laisser la modale se fermer proprement
                     setTimeout(() => {
                         alert("✅ Préinscription envoyée avec succès !\n\n⚠️ Votre préinscription ne sera effective qu'après votre passage dans l'un de nos 3 centres pour règlement.");
                     }, 300);
@@ -1702,19 +1860,24 @@
             });
         }
 
+        // =========================================================================
+        // INITIALISATION DE L'APPLICATION AU CHARGEMENT DU DOM
+        // =========================================================================
+
         document.addEventListener('DOMContentLoaded', () => {
-            // Charger la page d'accueil par défaut
+            // Afficher l'écran d'accueil par défaut au démarrage
             window.afficherEcran('accueil');
             
+            // Charger le dernier centre sélectionné par l'utilisateur ou la 'cote' par défaut
             var initCenter = safeStorage.getItem('selectedCenter') || 'cote';
             window.currentCenter = initCenter;
             window.setDynamicHours(initCenter);
             
-            // Mettre à jour la base de données d'activités depuis le serveur
+            // Lancer la mise à jour asynchrone en arrière-plan des activités et horaires
             mettreAJourActivites();
             mettreAJourHoraires();
             
-            // Enregistrement du Service Worker
+            // Enregistrement du Service Worker (Gestion du fonctionnement Hors-Ligne PWA)
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('service-worker.js')
                     .then(() => console.log('Service Worker enregistré !'))
